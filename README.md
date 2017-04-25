@@ -1,8 +1,8 @@
 # Scrapebots
 
 *Many Internet bots to scrape various web-platforms*
-<!-- [![Code Health](https://landscape.io/github/sirfoga/pygce/master/landscape.svg?style=flat
-)](https://landscape.io/github/sirfoga/pygce/master) -->
+[![Code Health](https://landscape.io/github/sirfoga/scrapebots/master/landscape.svg?style=flat
+)](https://landscape.io/github/sirfoga/scrapebots/master)
 
 
 ## Available bots
