@@ -16,7 +16,6 @@
 # limitations under the License.
 
 
-import datetime
 import time
 
 
@@ -41,12 +40,13 @@ def get_time_eta(total_done, total, start_time):
     if time_done > 0 and speed > 0:
         total_to_go = total - total_done
         time_to_go = total_to_go / speed
-        time_to_go = datetime.datetime.fromtimestamp(time_to_go).time()
+        m, s = divmod(time_to_go, 60)  # get hours, seconds and minutes
+        h, m = divmod(m, 60)
 
         return {
-            "h": time_to_go.hour,
-            "m": time_to_go.minute,
-            "s": time_to_go.second
+            "h": int(h),
+            "m": int(m),
+            "s": int(s)
         }
     else:
         return {
