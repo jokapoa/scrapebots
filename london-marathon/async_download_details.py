@@ -76,7 +76,7 @@ async def fetch(u):
                 )  # debug info
 
                 body = await response.text()
-                raw_sources.append(body)
+                raw_sources[str(u)] = str(body)  # add url and page source
 
                 if response.status != 200:
                     print_debug_info([response.status, u])
@@ -104,13 +104,14 @@ async def fetch_urls(list_of_urls, max_concurrent=1000):
 
 if __name__ == '__main__':
     file_path = parse_args(create_args())
+
     if check_args(file_path):
         urls = StreamsBot(file_path).read_results_url_from_csv()  # parse file to get urls of results
         total = len(urls)
         start_time = int(time.time())  # get ms of day
 
         print("Fetching HTML pages")
-        raw_sources = []  # list of raw HTML page sources
+        raw_sources = {}  # list of raw HTML page sources
         loop = asyncio.get_event_loop()
         future = asyncio.ensure_future(fetch_urls(urls))  # fetch sources
         loop.run_until_complete(future)
@@ -120,8 +121,8 @@ if __name__ == '__main__':
         print(len(raw_sources))
         details = []  # list of details
         start_time = int(time.time())  # get ms of day
-        for r in raw_sources:
-            athletic_performance = AthletePerformance(raw_html=r)
+        for k in raw_sources.keys():
+            athletic_performance = AthletePerformance(url=k, raw_html=raw_sources[k])  # create obj
             athletic_performance.parse_details()
             d = athletic_performance.to_dict()
             details.append(d)  # add to list

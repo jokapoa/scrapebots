@@ -14,6 +14,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - london marathon bot: parse event id
+- async details fetcher can take note of urls too
 
 ## 0.0 - 2017-04-25
 
