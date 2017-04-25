@@ -23,7 +23,7 @@ import time
 import aiohttp
 from aiosocks.connector import ProxyConnector, ProxyClientRequest
 from models import StreamsBot, AthletePerformance
-from utils import get_time_eta, print_item_info, print_time_eta, print_debug_info
+from utils import get_time_eta, print_time_eta, print_debug_info
 
 
 def create_args():
@@ -82,6 +82,7 @@ async def fetch(u):
                     print_debug_info([response.status, u])
                 return body
     except Exception as e:
+        raw_sources[str(u)] = ""  # add url and page source
         print_debug_info([str(e), u])
         return ""
 
@@ -118,16 +119,15 @@ if __name__ == '__main__':
         loop.close()
 
         print("Parsing HTML pages")
-        print(len(raw_sources))
         details = []  # list of details
         start_time = int(time.time())  # get ms of day
+        total = len(raw_sources)
         for k in raw_sources.keys():
             athletic_performance = AthletePerformance(url=k, raw_html=raw_sources[k])  # create obj
             athletic_performance.parse_details()
             d = athletic_performance.to_dict()
             details.append(d)  # add to list
 
-            print_item_info(d)
             print_time_eta(
                 get_time_eta(
                     len(details),

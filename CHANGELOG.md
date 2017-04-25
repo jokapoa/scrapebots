@@ -12,11 +12,13 @@ All notable changes to this project will be documented in this file.
 ### Added
 - FSG media downloader
 - london marathon bot: AthletePerformance.to_csv() includes url field
+- london marathon bot utils: percentage in ETA time
 
 ### Fixed
 - london marathon bot: parse event id
 - async details fetcher can take note of urls too
 - get_time_eta as hh:mm:ss format
+- london marathon bot: take note of url errors too
 
 ## 0.0 - 2017-04-25
 
