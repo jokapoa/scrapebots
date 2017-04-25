@@ -18,17 +18,17 @@
 
 import asyncio
 import csv
+import datetime
 import time
 
 import pandas
-import socks
 from bs4 import BeautifulSoup
 from hal.internet.web import Webpage
 
 VALUE_NOT_FOUND = "DNF"
 
 
-def get_time_to_go(total_done, total, start_time):
+def get_time_eta(total_done, total, start_time):
     """
     :param total_done: int
         Item processed
@@ -41,9 +41,23 @@ def get_time_to_go(total_done, total, start_time):
     """
 
     time_done = int(time.time()) - start_time
-    speed = total_done / time_done
-    total_to_go = total - total_done
-    return total_to_go / speed
+    if time_done > 0:
+        speed = total_done / time_done
+        total_to_go = total - total_done
+        time_to_go = total_to_go / speed
+        time_to_go = datetime.datetime.fromtimestamp(time_to_go).time()
+
+        return {
+            "h": time_to_go.hour,
+            "m": time_to_go.minute,
+            "s": time_to_go.second
+        }
+    else:
+        return {
+            "h": 0.0,
+            "m": 0.0,
+            "s": 0.0
+        }
 
 
 class AthletePerformance(object):
@@ -234,7 +248,7 @@ class AthletePerformance(object):
         """
 
         try:
-            rows = raw_html.find_all("tr")  # table rows
+            rows = raw_html.find_all("tr")[1:]  # table rows
         except:
             rows = []
 
@@ -429,7 +443,7 @@ class LondonMarathonBot(object):
         return db_years
 
     @staticmethod
-    def get_performances_details(urls):
+    def get_performance_details(urls):
         """
         :param urls: [] of str
             List of url of results of year
@@ -437,15 +451,29 @@ class LondonMarathonBot(object):
             Parses performances and returns list of details
         """
 
-        o = []
+        results = []
+        start_time = int(time.time())  # get ms of day
+        total = len(urls)
+
         for u in urls:
-            result = AthletePerformance(u)
+            result = AthletePerformance(url=u)
             result.parse_details()  # parse
-            o.append(
-                result.to_dict()
+            details = result.to_dict()
+            results.append(
+                details
             )  # add to dict
-            print("Parsed", len(o), "/", len(urls))  # debug info
-        return o
+
+            time_to_go = get_time_eta(
+                len(results),
+                total,
+                start_time
+            )  # get ETA
+            print(
+                details["name"], "(" + details["nationality"] + ")", details["finish_time"],
+                "ETA:", str(time_to_go["h"]) + ":" + str(time_to_go["m"]) + ":" + str(time_to_go["s"])
+            )  # debug info
+
+        return results
 
     @staticmethod
     def async_get_performance_details(urls):
@@ -457,22 +485,23 @@ class LondonMarathonBot(object):
         results = []
         start_time = int(time.time())  # get ms of day
         total = len(urls)
-        socks.setdefaultproxy(proxy_type=socks.PROXY_TYPE_SOCKS5, addr="127.0.0.1", port=9050)  # force TOR way
 
         @asyncio.coroutine
         def async_get_performance_details_from_url(u):
             result = AthletePerformance(url=u)
             result.parse_details()  # get details
-            results.append(result.to_dict())  # add to list of results
+            details = result.to_dict()
+            results.append(details)  # add to list of results
 
-            time_now = int(time.time())
-            time_to_go = get_time_to_go(
+            time_to_go = get_time_eta(
                 len(results),
                 total,
                 start_time
-            )
-            print("Got", str(len(results)), "athletes at", str(time_now), "ETA (h):",
-                  str(time_to_go / (60 * 60)))  # debug info
+            )  # get ETA
+            print(
+                details["name"], "(" + details["nationality"] + ")", details["finish_time"],
+                "ETA:", str(time_to_go["h"]) + ":" + str(time_to_go["m"]) + ":" + str(time_to_go["s"])
+            )  # debug info
 
         loop = asyncio.get_event_loop()
         task = asyncio.ensure_future(

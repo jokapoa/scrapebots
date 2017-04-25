@@ -18,6 +18,10 @@
 - [Torrent](misc/torrent_downloader.py): download .torrent files
 
 
+## TODO bots
+- [NYC Marathon](http://web2.nyrrc.org/cgi-bin/start.cgi/mar-programs/archive/archive_search.html)
+
+
 ## Install
 Usually just a few dependencies are needed:
 - `pyhal`: `pip3 install pyhal --upgrade --force-reinstall`

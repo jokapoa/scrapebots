@@ -93,7 +93,7 @@ def main():
             bot.write_dict_to_csv(urls)
         else:
             urls = StreamsBot(file_path).read_results_url_from_csv()  # parse file to get urls of results
-            details = LondonMarathonBot.async_get_performance_details(urls)  # get details of performances
+            details = LondonMarathonBot.get_performance_details(urls)  # get details of performances
             out_path = os.path.join(os.path.dirname(file_path),
                                     "out-" + str(int(time.time())) + ".csv")  # unique out file
             StreamsBot(out_path).write_dicts_to_csv(details)  # save to output file
