@@ -1,6 +1,7 @@
 # Scrapebots
 
 *Many Internet bots to scrape various web-platforms*
+
 [![Code Health](https://landscape.io/github/sirfoga/scrapebots/master/landscape.svg?style=flat
 )](https://landscape.io/github/sirfoga/scrapebots/master)
 

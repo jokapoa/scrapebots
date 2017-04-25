@@ -102,8 +102,7 @@ class AthletePerformance(object):
         else:
             self.event_id = self.url.split("&search_event=")[-1]
 
-        if self.raw_html is None:
-            self.raw_html = Webpage(self.url).get_html_source(tor=True)  # get html source of url
+        self.get_raw_html()  # get HTML page source
 
         soup = BeautifulSoup(self.raw_html, "lxml")  # HTML parser
         details_tables = soup.find_all("table", {"class": "list-table names"})  # tables with details about competition
@@ -463,8 +462,8 @@ class LondonMarathonBot(object):
         @asyncio.coroutine
         def async_get_performance_details_from_url(u):
             result = AthletePerformance(url=u)
-            result.get_raw_html()  # get html
-            results.append(result)  # add to list of results
+            result.parse_details()  # get details
+            results.append(result.to_dict())  # add to list of results
 
             time_now = int(time.time())
             time_to_go = get_time_to_go(
@@ -484,10 +483,7 @@ class LondonMarathonBot(object):
         loop.run_until_complete(task)
         loop.close()
 
-        for r in results:
-            r.parse_details()
-        details = [r.to_dict() for r in results]
-        return details
+        return results
 
 
 class StreamsBot(object):
