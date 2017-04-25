@@ -16,6 +16,7 @@
 - [Hackerrank](misc/hackerrank.py): download problems statements and solutions
 - [Torrentz](misc/torr_mov.py): open Torrentz pages
 - [Torrent](misc/torrent_downloader.py): download .torrent files
+- [FSG media downloader](misc/fsgmedia-downloader.py): download pictures from (Samsung) FSG servers
 
 
 ## TODO bots

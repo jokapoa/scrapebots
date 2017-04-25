@@ -12,6 +12,9 @@ All notable changes to this project will be documented in this file.
 ### Added
 - FSG media downloader
 
+### Fixed
+- london marathon bot: parse event id
+
 ## 0.0 - 2017-04-25
 
 ### Released

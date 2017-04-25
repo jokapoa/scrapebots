@@ -63,23 +63,27 @@ def check_args(file_path):
 
 
 async def fetch(u):
-    conn = ProxyConnector(remote_resolve=True)
-    async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest) as session:
-        async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
-            print_time_eta(
-                get_time_eta(
-                    len(raw_sources),
-                    total,
-                    start_time
-                )  # get ETA
-            )  # debug info
+    try:
+        conn = ProxyConnector(remote_resolve=True)
+        async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest) as session:
+            async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
+                print_time_eta(
+                    get_time_eta(
+                        len(raw_sources),
+                        total,
+                        start_time
+                    )  # get ETA
+                )  # debug info
 
-            body = await response.text()
-            raw_sources.append(body)
+                body = await response.text()
+                raw_sources.append(body)
 
-            if response.status != 200:
-                print_debug_info([response.status, u])
-            return body
+                if response.status != 200:
+                    print_debug_info([response.status, u])
+                return body
+    except Exception as e:
+        print_debug_info([str(e), u])
+        return ""
 
 
 async def bound_fetch(sem, url):

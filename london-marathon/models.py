@@ -70,7 +70,10 @@ class AthletePerformance(object):
         """
 
         if self.raw_html is None:
-            self.raw_html = Webpage(self.url).get_html_source(tor=True)  # get html source of url
+            if self.url is None:
+                self.raw_html = None
+            else:
+                self.raw_html = Webpage(self.url).get_html_source(tor=True)  # get html source of url
 
     def parse_details(self):
         """
@@ -78,15 +81,19 @@ class AthletePerformance(object):
            Parses webpage at url and saves details
         """
 
-        if self.url is None:
-            self.event_id = str(VALUE_NOT_FOUND)
-        else:
-            self.event_id = self.url.split("&search_event=")[-1]
-
         self.get_raw_html()  # get HTML page source
-
         soup = BeautifulSoup(self.raw_html, "lxml")  # HTML parser
         details_tables = soup.find_all("table", {"class": "list-table names"})  # tables with details about competition
+
+        if self.url is None:
+            try:
+                event_id = soup.find_all("a", {"class": "active nav-pid-start"})[0]["href"].split("/?event=")[-1]
+                event_id = event_id.split("&")[0]
+                self.event_id = event_id
+            except:
+                self.event_id = str(VALUE_NOT_FOUND)
+        else:
+            self.event_id = self.url.split("&search_event=")[-1]
 
         try:
             self.parse_runner_details(details_tables[0])
