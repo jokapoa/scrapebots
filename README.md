@@ -5,6 +5,18 @@
 )](https://landscape.io/github/sirfoga/pygce/master) -->
 
 
+## Available bots
+- [Amazon](amazon/amazon_items_scraper.py): get items in classic Amazon page
+- [Github](github/tester.py): use API token to get info about users, repos ...
+- [Virgin London Marathon](london-marathon/cli.py): download marathon results
+- [Rotten Tomatoes](rottentomatoes/cli.py): search movies in database
+- [andreadd.it](misc/andreadd.py): download books and notes
+- [Google Images](misc/google_image.py): download images
+- [Hackerrank](misc/hackerrank.py): download problems statements and solutions
+- [Torrentz](misc/torr_mov.py): open Torrentz pages
+- [Torrent](misc/torrent_downloader.py): download .torrent files
+
+
 ## Install
 Usually just a few dependencies are needed:
 - `pyhal`: `pip3 install pyhal --upgrade --force-reinstall`
