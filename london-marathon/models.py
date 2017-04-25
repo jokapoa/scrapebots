@@ -284,6 +284,7 @@ class AthletePerformance(object):
         """
 
         return {
+            "url": str(VALUE_NOT_FOUND) if self.url is None else str(self.url),
             "event": self.event_id,  # event and runner details
             "name": self.surname_name,
             "nationality": self.nationality,

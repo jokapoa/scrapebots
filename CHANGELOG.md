@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - FSG media downloader
+- london marathon bot: AthletePerformance.to_csv() includes url field
 
 ### Fixed
 - london marathon bot: parse event id
