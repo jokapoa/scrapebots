@@ -16,48 +16,15 @@
 # limitations under the License.
 
 
-import asyncio
 import csv
-import datetime
 import time
 
 import pandas
 from bs4 import BeautifulSoup
 from hal.internet.web import Webpage
+from utils import get_time_eta, print_item_info
 
 VALUE_NOT_FOUND = "DNF"
-
-
-def get_time_eta(total_done, total, start_time):
-    """
-    :param total_done: int
-        Item processed
-    :param total: int
-        Total number of items to process
-    :param start_time: time
-        Time of start processing items
-    :return: time
-        Time to go
-    """
-
-    time_done = int(time.time()) - start_time
-    if time_done > 0:
-        speed = total_done / time_done
-        total_to_go = total - total_done
-        time_to_go = total_to_go / speed
-        time_to_go = datetime.datetime.fromtimestamp(time_to_go).time()
-
-        return {
-            "h": time_to_go.hour,
-            "m": time_to_go.minute,
-            "s": time_to_go.second
-        }
-    else:
-        return {
-            "h": 0.0,
-            "m": 0.0,
-            "s": 0.0
-        }
 
 
 class AthletePerformance(object):
@@ -468,49 +435,7 @@ class LondonMarathonBot(object):
                 total,
                 start_time
             )  # get ETA
-            print(
-                details["name"], "(" + details["nationality"] + ")", details["finish_time"],
-                "ETA:", str(time_to_go["h"]) + ":" + str(time_to_go["m"]) + ":" + str(time_to_go["s"])
-            )  # debug info
-
-        return results
-
-    @staticmethod
-    def async_get_performance_details(urls):
-        """
-        :return: [] of {}
-            List of each athlete performance
-        """
-
-        results = []
-        start_time = int(time.time())  # get ms of day
-        total = len(urls)
-
-        @asyncio.coroutine
-        def async_get_performance_details_from_url(u):
-            result = AthletePerformance(url=u)
-            result.parse_details()  # get details
-            details = result.to_dict()
-            results.append(details)  # add to list of results
-
-            time_to_go = get_time_eta(
-                len(results),
-                total,
-                start_time
-            )  # get ETA
-            print(
-                details["name"], "(" + details["nationality"] + ")", details["finish_time"],
-                "ETA:", str(time_to_go["h"]) + ":" + str(time_to_go["m"]) + ":" + str(time_to_go["s"])
-            )  # debug info
-
-        loop = asyncio.get_event_loop()
-        task = asyncio.ensure_future(
-            asyncio.gather(
-                *(async_get_performance_details_from_url(u) for u in urls)
-            )
-        )
-        loop.run_until_complete(task)
-        loop.close()
+            print_item_info(details, time_to_go)  # debug info
 
         return results
 
