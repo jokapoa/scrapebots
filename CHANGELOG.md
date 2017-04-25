@@ -5,7 +5,12 @@ All notable changes to this project will be documented in this file.
 
 ### Tested
 - async workers for london marathon
-- refactored utils for london marathon
+
+### Refactored
+- utils for london marathon
+
+### Added
+- FSG media downloader
 
 ## 0.0 - 2017-04-25
 
