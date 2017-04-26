@@ -9,6 +9,9 @@ All notable changes to this project will be documented in this file.
 ### Tested
 - nyc marathon bot (it works)
 
+### Fixed
+- nyc marathon bot: go_to_next_page_of_archive
+
 ## 0.1 - 2017-04-25
 
 ### Tested

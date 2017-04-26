@@ -356,10 +356,15 @@ class NYCMarathonBot(object):
         """
 
         try:
-            self.browser.execute_script(
-                "l = document.getElementsByName(\"submit\"); l[l.length - 1].click()")  # go to next page
-            time.sleep(self.BROWSER_WAIT_TIMEOUT_SECONDS)
-            return True
+            has_next_page = self.browser.execute_script(
+                "l = document.getElementsByName(\"submit\"); s = l[l.length - 1]; return s.value.includes(\"Next\")")
+            if has_next_page:
+                self.browser.execute_script(
+                    "l = document.getElementsByName(\"submit\"); s = l[l.length - 1]; s.click()")  # go to next page
+                time.sleep(self.BROWSER_WAIT_TIMEOUT_SECONDS)
+                return True
+            else:
+                return False
         except:
             return False
 
@@ -377,7 +382,7 @@ class NYCMarathonBot(object):
         self.go_to_first_page_of_archive(year)  # get first page of archive
         start_time = time.time()
 
-        while keep_going and len(list_tables) < 20:
+        while keep_going:
             try:
                 table_data, rows_counter = self.get_raw_data()
                 list_tables.append(table_data)
