@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 ### Added
 - nyc marathon bot
 
+### Tested
+- nyc marathon bot (it works)
+
 ## 0.1 - 2017-04-25
 
 ### Tested

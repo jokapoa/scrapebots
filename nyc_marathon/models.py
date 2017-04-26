@@ -17,6 +17,7 @@
 
 
 import csv
+import string
 import time
 
 import pandas
@@ -25,6 +26,7 @@ from selenium import webdriver
 from utils import get_time_eta, print_time_eta, print_debug_info
 
 VALUE_NOT_FOUND = str("DNF")
+TOTAL_RUNNERS_IN_ONE_EVENT = 50000
 
 
 def get_text_or_dnf(raw_html):
@@ -77,8 +79,10 @@ class AthletePerformance(object):
         self.age_graded_time = VALUE_NOT_FOUND  # performance
         self.age_graded_performance = VALUE_NOT_FOUND
 
-    def parse_details(self):
+    def parse_details(self, headers):
         """
+        :param headers: [] of str
+            Column names
         :return: void
            Parses webpage at url and saves details
         """
@@ -86,77 +90,168 @@ class AthletePerformance(object):
         soup = BeautifulSoup(self.raw_html, "lxml")  # HTML parser
         columns = soup.find_all("td")
 
-        self.parse_runner_details(columns)
-        self.parse_standings_details(columns)
-        self.parse_splits_details(columns)
-        self.parse_performance_details(columns)
+        self.parse_runner_details(columns, headers)
+        self.parse_standings_details(columns, headers)
+        self.parse_splits_details(columns, headers)
+        self.parse_performance_details(columns, headers)
 
-    def parse_runner_details(self, columns):
+    def parse_runner_details(self, columns, headers):
         """
         :param columns: [] of str
             List of raw HTML table columns with data
+        :param headers: [] of str
+            Column names
         :return: void
             Sets obj fields
         """
 
-        self.first_name = get_text_or_dnf(columns[0])
-        self.last_name = get_text_or_dnf(columns[1])
+        try:
+            self.first_name = get_text_or_dnf(columns[headers.index("First Name")])
+        except:
+            pass
 
         try:
-            sex_age = str(columns[2]).strip()
+            self.last_name = get_text_or_dnf(columns[headers.index("Last Name")])
+        except:
+            pass
+
+        try:
+            sex_age = str(columns[headers.index("Sex/Age")].text).strip()
             self.sex = sex_age[0]
             self.age = sex_age[1:]
         except:
             self.sex = VALUE_NOT_FOUND
             self.age = VALUE_NOT_FOUND
 
-        self.bib = get_text_or_dnf(columns[3])
-        self.team = get_text_or_dnf(columns[4])
-        self.state = get_text_or_dnf(columns[5])
-        self.nationality = get_text_or_dnf(columns[7])
+        try:
+            self.bib = get_text_or_dnf(columns[headers.index("Bib")])
+        except:
+            pass
 
-    def parse_standings_details(self, columns):
+        try:
+            self.team = get_text_or_dnf(columns[headers.index("Team")])
+        except:
+            pass
+
+        try:
+            self.state = get_text_or_dnf(columns[headers.index("State")])
+        except:
+            pass
+
+        try:
+            self.nationality = get_text_or_dnf(columns[headers.index("Citizenship")])
+        except:
+            pass
+
+    def parse_standings_details(self, columns, headers):
         """
         :param columns: [] of str
             List of raw HTML table columns with data
+        :param headers: [] of str
+            Column names
         :return: void
             Sets obj fields
         """
 
-        self.place = get_text_or_dnf(columns[8])
-        self.place_gender = get_text_or_dnf(columns[9])
-        self.place_age = get_text_or_dnf(columns[10])
+        try:
+            self.place = get_text_or_dnf(columns[headers.index("Place")])
+        except:
+            pass
 
-    def parse_splits_details(self, columns):
+        try:
+            self.place_gender = get_text_or_dnf(columns[headers.index("GenderPlace")])
+        except:
+            pass
+
+        try:
+            self.place_age = get_text_or_dnf(columns[headers.index("AgePlace")])
+        except:
+            pass
+
+    def parse_splits_details(self, columns, headers):
         """
         :param columns: [] of str
             List of raw HTML table columns with data
+        :param headers: [] of str
+            Column names
         :return: void
             Sets obj fields
         """
 
-        self.gun_time = get_text_or_dnf(columns[11])
-        self.net_time = get_text_or_dnf(columns[12])
-        self.split_5K = get_text_or_dnf(columns[13])
-        self.split_10K = get_text_or_dnf(columns[14])
-        self.split_15K = get_text_or_dnf(columns[15])
-        self.split_20K = get_text_or_dnf(columns[16])
-        self.split_HALF = get_text_or_dnf(columns[17])
-        self.split_25K = get_text_or_dnf(columns[18])
-        self.split_30K = get_text_or_dnf(columns[19])
-        self.split_35K = get_text_or_dnf(columns[20])
-        self.split_40K = get_text_or_dnf(columns[21])
+        try:
+            self.gun_time = get_text_or_dnf(columns[headers.index("GunTime")])
+        except:
+            pass
 
-    def parse_performance_details(self, columns):
+        try:
+            self.net_time = get_text_or_dnf(columns[headers.index("NetTime")])
+        except:
+            pass
+
+        try:
+            self.split_5K = get_text_or_dnf(columns[headers.index("5 km")])
+        except:
+            pass
+
+        try:
+            self.split_10K = get_text_or_dnf(columns[headers.index("10 km")])
+        except:
+            pass
+
+        try:
+            self.split_15K = get_text_or_dnf(columns[headers.index("15 km")])
+        except:
+            pass
+
+        try:
+            self.split_20K = get_text_or_dnf(columns[headers.index("20 km")])
+        except:
+            pass
+
+        try:
+            self.split_HALF = get_text_or_dnf(columns[headers.index("13.1 mi")])
+        except:
+            pass
+
+        try:
+            self.split_25K = get_text_or_dnf(columns[headers.index("25 km")])
+        except:
+            pass
+
+        try:
+            self.split_30K = get_text_or_dnf(columns[headers.index("30 km")])
+        except:
+            pass
+
+        try:
+            self.split_35K = get_text_or_dnf(columns[headers.index("35 km")])
+        except:
+            pass
+
+        try:
+            self.split_40K = get_text_or_dnf(columns[headers.index("40 km")])
+        except:
+            pass
+
+    def parse_performance_details(self, columns, headers):
         """
         :param columns: [] of str
             List of raw HTML table columns with data
+        :param headers: [] of str
+            Column names
         :return: void
             Sets obj fields
         """
 
-        self.age_graded_time = get_text_or_dnf(columns[23])
-        self.age_graded_performance = get_text_or_dnf(columns[24])
+        try:
+            self.age_graded_time = get_text_or_dnf(columns[headers.index("Age-GradedTime")])
+        except:
+            pass
+
+        try:
+            self.age_graded_performance = get_text_or_dnf(columns[headers.index("Age-GradedPerformance %")])
+        except:
+            pass
 
     def to_dict(self):
         """
@@ -196,16 +291,17 @@ class NYCMarathonBot(object):
     """ Selenium bot for NYC Marathon website data """
 
     ARCHIVE_SEARCH_FORM_URL = "http://web2.nyrrc.org/cgi-bin/start.cgi/mar-programs/archive/archive_search.html"
-    BROWSER_WAIT_TIMEOUT_SECONDS = 2
+    BROWSER_WAIT_TIMEOUT_SECONDS = 1
 
-    def __init__(self, chromedriver_path):
+    def __init__(self):
         """
         :param chromedriver_path: str
             Path to Chrome driver to use as browser
         """
 
         object.__init__(self)
-        self.browser = webdriver.Chrome(chromedriver_path)  # bot browser to use
+        self.browser = webdriver.Firefox()
+        self.browser.set_page_load_timeout(self.BROWSER_WAIT_TIMEOUT_SECONDS)  # seconds
 
     def go_to_archive_search_form(self):
         """
@@ -215,10 +311,11 @@ class NYCMarathonBot(object):
 
         try:
             self.browser.get(self.ARCHIVE_SEARCH_FORM_URL)
-        except Exception as e:
-            print_debug_info([str(e)])
+            time.sleep(self.BROWSER_WAIT_TIMEOUT_SECONDS)
+        except:
+            pass
 
-    def go_to_archive_year(self, year):
+    def go_to_first_page_of_archive(self, year):
         """
         :param year: int
             Year of marathon to get data about
@@ -230,11 +327,12 @@ class NYCMarathonBot(object):
         self.browser.execute_script(
             "document.getElementsByName(\"input.searchyear\")[0].value = \"" + str(year) + "\"")  # choose year
 
-        self.browser.execute_script("$(\"[value=\'search.age\']\").checked = true")  # check age method
+        self.browser.execute_script("document.getElementsByTagName(\"input\")[9].checked = true")  # check age method
         self.browser.execute_script("document.getElementsByName(\"input.f.age\")[0].value = \"0\"")  # choose min age
         self.browser.execute_script("document.getElementsByName(\"input.t.age\")[0].value = \"99\"")  # choose max age
 
         self.browser.execute_script("document.getElementsByTagName(\"form\")[0].submit()")  # submit form
+        time.sleep(self.BROWSER_WAIT_TIMEOUT_SECONDS)
 
     def get_raw_data(self):
         """
@@ -243,25 +341,27 @@ class NYCMarathonBot(object):
         """
 
         try:
-            soup = BeautifulSoup(self.browser.page_source, "lxml")  # html parser
+            page_source = str(self.browser.page_source)
+            soup = BeautifulSoup(page_source, "lxml")  # html parser
             table = soup.find_all("table")[0]
             rows = table.find_all("tr")[1:]
-            return table, len(rows)
+            return str(table), len(rows)
         except:
             return "", 0
 
     def go_to_next_page_of_archive(self):
         """
-        :return: void
-            Browser navigates to next page of archive
+        :return: bool
+            True iff browser navigates correctly to next page of archive
         """
 
         try:
-            soup = BeautifulSoup(self.browser.page_source, "lxml")  # html parser
-            url_next_page = soup.find_all("form")[-1]["action"]
-            self.browser.get(url_next_page)
-        except Exception as e:
-            print_debug_info([str(e)], self.browser.current_url)
+            self.browser.execute_script(
+                "l = document.getElementsByName(\"submit\"); l[l.length - 1].click()")  # go to next page
+            time.sleep(self.BROWSER_WAIT_TIMEOUT_SECONDS)
+            return True
+        except:
+            return False
 
     def get_data_tables_of_year(self, year):
         """
@@ -274,20 +374,29 @@ class NYCMarathonBot(object):
         list_tables = []  # list of raw table data of archive
         keep_going = True
         fetched_data_counter = 0  # counter of how many fetched pages
-        self.go_to_archive_year(year)  # get to first page of archive
-        start_time = str(time.time())
+        self.go_to_first_page_of_archive(year)  # get first page of archive
+        start_time = time.time()
 
-        while keep_going:
-            table_data, rows_counter = self.get_raw_data()
-            list_tables.append(table_data)
-            fetched_data_counter += rows_counter
-            keep_going = (rows_counter > 0)
-            self.go_to_next_page_of_archive()  # navigate to next page
-            print_time_eta(
-                get_time_eta(
-                    len(list_tables), 50000, start_time
-                )
-            )  # debug info
+        while keep_going and len(list_tables) < 20:
+            try:
+                table_data, rows_counter = self.get_raw_data()
+                list_tables.append(table_data)
+                fetched_data_counter += rows_counter
+                has_next_page = self.go_to_next_page_of_archive()
+                keep_going = (rows_counter > 0 and has_next_page)
+
+                print_time_eta(
+                    get_time_eta(
+                        fetched_data_counter, TOTAL_RUNNERS_IN_ONE_EVENT, start_time
+                    )
+                )  # debug info
+            except Exception as e:
+                print_debug_info(["\n\t!!!!!!!!!!!!!!!!!!!!\n\t", str(e), "\n\t!!!!!!!!!!!!!!!!!!!!\n\t\n"])
+                keep_going = False
+
+        self.browser.close()  # close browser
+        self.browser.stop_client()
+        self.browser.quit()
 
         return list_tables
 
@@ -304,18 +413,25 @@ class NYCMarathonParser(object):
         object.__init__(self)
         self.data_table = data_table
 
-    def parse(self):
+    def get_results(self):
         """
         :return: [] of AthletePerformance
             Parses raw data and returns list of results
         """
 
         soup = BeautifulSoup(self.data_table, "lxml")  # html parser
-        rows = soup.find_all("tr")[1:]  # discard header
+        rows = soup.find_all("tr")[1:]  # discard headers
+        headers = [h.text for h in soup.find_all("table")[0].find_all("tr")[0].find_all("td")]  # column names
+        headers = [
+            "".join(c for c in h if c in string.printable) for h in headers
+            ]  # convert to unicode utf-8
+        headers.insert(headers.index("Country ofResidence/Citizenship") + 1,
+                       "Citizenship")  # add citizenship missing header
+
         results = []
         for r in rows:
-            a = AthletePerformance(r)
-            a.parse_details()
+            a = AthletePerformance(str(r))
+            a.parse_details(headers)
             results.append(a)
         return results
 
@@ -363,27 +479,3 @@ class StreamsBot(object):
             dict_writer = csv.DictWriter(o, csv_headers, delimiter=",", quotechar="\"")
             dict_writer.writeheader()
             dict_writer.writerows(dicts)
-
-
-def download_year_results(year, chromedriver_path, out_path):
-    """
-    :param year: int
-        Year of marathon to get data about
-    :param chromedriver_path: str
-            Path to Chrome driver to use as browser
-    :param out_path: str
-        Path where save data to
-    :return: void
-        Saves data to file
-    """
-
-    bot = NYCMarathonBot(chromedriver_path)  # build bot to scrape data
-    data_tables = bot.get_data_tables_of_year(year)  # fetch data
-
-    data = []
-    for t in data_tables:  # parse data
-        results = NYCMarathonParser(t).parse()
-        data += results
-
-    csv_details = [d.to_dict() for d in data]  # convert to dict
-    StreamsBot(out_path).write_dicts_to_csv(csv_details)  # save to output file
