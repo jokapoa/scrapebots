@@ -19,6 +19,9 @@
 - [FSG media downloader](misc/fsgmedia-downloader.py): download pictures from (Samsung) FSG servers
 - [NYC Marathon](nyc_marathon/fetch_details.py)
 
+## TODO bots
+- [ultra-marathon statisiken](http://statistik.d-u-v.org/geteventlist.php?year=all&dist=all&country=all&page=1)
+- [connemarathon (with pdf -> text conversion)](http://www.connemarathon.com/results/)
 
 ## Install
 Usually just a few dependencies are needed:

@@ -291,7 +291,7 @@ class NYCMarathonBot(object):
     """ Selenium bot for NYC Marathon website data """
 
     ARCHIVE_SEARCH_FORM_URL = "http://web2.nyrrc.org/cgi-bin/start.cgi/mar-programs/archive/archive_search.html"
-    BROWSER_WAIT_TIMEOUT_SECONDS = 1
+    BROWSER_WAIT_TIMEOUT_SECONDS = 3
 
     def __init__(self):
         """
@@ -430,8 +430,9 @@ class NYCMarathonParser(object):
         headers = [
             "".join(c for c in h if c in string.printable) for h in headers
             ]  # convert to unicode utf-8
-        headers.insert(headers.index("Country ofResidence/Citizenship") + 1,
-                       "Citizenship")  # add citizenship missing header
+
+        index_country = [i for i in range(len(headers)) if headers[i].startswith("Country of")][0]
+        headers.insert(index_country + 1, "Citizenship")  # add citizenship missing header
 
         results = []
         for r in rows:

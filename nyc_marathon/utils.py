@@ -45,6 +45,8 @@ def get_time_eta(total_done, total, start_time):
         percentage = total_done * 100.0 / total
 
         return {
+            "done": int(total_done),
+            "tot": int(total),
             "%": float("{0:.2f}".format(percentage)),
             "h": int(h),
             "m": int(m),
@@ -52,6 +54,8 @@ def get_time_eta(total_done, total, start_time):
         }
     else:
         return {
+            "done": int(total_done),
+            "tot": int(total),
             "%": 0,
             "h": 0,
             "m": 0,
@@ -82,7 +86,7 @@ def print_time_eta(time_to_go):
     """
 
     print(
-        "Done", str(time_to_go["%"]), "%",
+        str(time_to_go["done"]) + "/" + str(time_to_go["tot"]), "(" + str(time_to_go["%"]) + "%)",
         "ETA {:20.19}".format(
             str(time_to_go["h"]) + "h " + str(time_to_go["m"]) + "\' " + str(time_to_go["s"]) + "\""
         )
