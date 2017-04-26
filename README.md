@@ -9,7 +9,7 @@
 ## Available bots
 - [Amazon](amazon/amazon_items_scraper.py): get items in classic Amazon page
 - [Github](github/tester.py): use API token to get info about users, repos ...
-- [Virgin London Marathon](london-marathon/fetch_details_urls.py): download marathon results
+- [Virgin London Marathon](london_marathon/fetch_details_urls.py): download marathon results
 - [Rotten Tomatoes](rottentomatoes/cli.py): search movies in database
 - [andreadd.it](misc/andreadd.py): download books and notes
 - [Google Images](misc/google_image.py): download images
@@ -17,10 +17,7 @@
 - [Torrentz](misc/torr_mov.py): open Torrentz pages
 - [Torrent](misc/torrent_downloader.py): download .torrent files
 - [FSG media downloader](misc/fsgmedia-downloader.py): download pictures from (Samsung) FSG servers
-
-
-## TODO bots
-- [NYC Marathon](http://web2.nyrrc.org/cgi-bin/start.cgi/mar-programs/archive/archive_search.html)
+- [NYC Marathon](nyc_marathon/fetch_details.py)
 
 
 ## Install
