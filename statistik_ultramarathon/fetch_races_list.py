@@ -178,6 +178,6 @@ if __name__ == '__main__':
             dict_writer = csv.DictWriter(output_file, keys, quotechar="\"", delimiter=",")
             dict_writer.writeheader()
             dict_writer.writerows(details)
-        print("Output data writen to", path_out)
+        print("Output data written to", path_out)
     else:
         print("Error while parsing args.")

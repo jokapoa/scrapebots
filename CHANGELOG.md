@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - statistik races list fetcher (async via tor)
+- statistik races details fetcher (async via tor)
+
+### Removed
+- time profiling utils
 
 ## 0.1.2 - 2017-04-27
 
