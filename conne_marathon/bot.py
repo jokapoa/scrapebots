@@ -18,7 +18,12 @@
 
 import argparse
 import os
-import time
+
+from bs4 import BeautifulSoup
+from hal.internet.web import Webpage, download_pdf_to_file
+
+RESULTS_PAGE_URL = "http://www.connemarathon.com/results/"
+MIN_YEAR = 2002
 
 
 def create_args():
@@ -91,22 +96,21 @@ def download_year_results(year, out_path):
         Saves data to file
     """
 
-    bot = NYCMarathonBot()  # build bot to scrape data
-    data_tables = bot.get_data_tables_of_year(year)  # fetch data
-
-    data = []
-    for t in data_tables:  # parse data
-        data_table = NYCMarathonParser(t)
-        results = data_table.get_results()
-        data += results
-
-    csv_details = [d.to_dict() for d in data]  # convert to dict
-    out_file = os.path.join(
-        out_path,
-        str(year) + "_" + str(int(time.time())) + ".csv"
-    )
-    StreamsBot(out_file).write_dicts_to_csv(csv_details)  # save to output file
-    print("Results saved to", out_file)
+    w = Webpage(RESULTS_PAGE_URL)
+    soup = BeautifulSoup(w.get_html_source(), "lxml")
+    table = soup.find_all("table")[0]
+    rows = table.find_all("tr")[1:]  # discard header
+    rows.reverse()  # start from min year to present
+    row_of_year = rows[year - MIN_YEAR]  # row where to find results of given year
+    columns = row_of_year.find_all("td")
+    for c in columns:
+        try:
+            link = c.a["href"]
+            file_name = link.split("/")[-1]
+            out_file = os.path.join(out_path, file_name)
+            download_pdf_to_file(link, out_file)  # download
+        except Exception as e:  # column has no link
+            print(str(e))
 
 
 def download_years_results(years, out_path):

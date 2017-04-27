@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## 0.1.2 - 2017-04-27
 
+### Tested
+- conne marathon bot (it works)
+
 ### Added
 - conne marathon bot (raw version => -0.1)
 - time utils
