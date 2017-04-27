@@ -1,7 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 0.1 - 2017-04-26
+## 0.1.2 - 2017-04-27
+
+### Added
+- conne marathon bot (raw version => -0.1)
+- time utils
+
+## 0.1.1 - 2017-04-26
 
 ### Added
 - nyc marathon bot
