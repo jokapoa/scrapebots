@@ -19,13 +19,13 @@
 | [Torrent](misc/torrent_downloader.py) | download .torrent files | DNF |
 | [FSG media downloader](misc/fsgmedia-downloader.py) | download pictures from (Samsung) FSG servers | ~4TB |
 | [NYC Marathon](nyc_marathon/fetch_details.py) | download full marathon results (since 1970)  | ~1 million |
+| [connemarathon](conne_marathon/bot.py) | connemarathon (since 2002)  | ~30000 |
 
 
 ## TODO bots
 | name | description | data size |
 | ------------- | ------------- | ------------- |
 | [ultra-marathon statisiken](http://statistik.d-u-v.org/geteventlist.php?year=all&dist=all&country=all&page=1) | ultramarathon performances | ~3 million |
-| [connemarathon (with pdf -> text conversion)](http://www.connemarathon.com/results/) | connemarathon (since 2002)  | ~300000 |
 
 
 ## Install
