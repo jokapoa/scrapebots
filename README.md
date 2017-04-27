@@ -7,21 +7,26 @@
 
 
 ## Available bots
-- [Amazon](amazon/amazon_items_scraper.py): get items in classic Amazon page
-- [Github](github/tester.py): use API token to get info about users, repos ...
-- [Virgin London Marathon](london_marathon/fetch_details_urls.py): download marathon results
-- [Rotten Tomatoes](rottentomatoes/cli.py): search movies in database
-- [andreadd.it](misc/andreadd.py): download books and notes
-- [Google Images](misc/google_image.py): download images
-- [Hackerrank](misc/hackerrank.py): download problems statements and solutions
-- [Torrentz](misc/torr_mov.py): open Torrentz pages
-- [Torrent](misc/torrent_downloader.py): download .torrent files
-- [FSG media downloader](misc/fsgmedia-downloader.py): download pictures from (Samsung) FSG servers
-- [NYC Marathon](nyc_marathon/fetch_details.py)
+| name | description | data size |
+| ------------- | ------------- | ------------- |
+| [Amazon](amazon/amazon_items_scraper.py)  | parse items in classic Amazon page  | DNF |
+| [Github](github/tester.py)  | use API token to get info about users, repos ...  | DNF |
+| [Virgin London Marathon](london_marathon/fetch_details_urls.py)  | download marathon results (since 2014)  | ~175000 |
+| [andreadd.it](misc/andreadd.py) | download books and notes  | ~1GB |
+| [Google Images](misc/google_image.py) | download images  | DNF |
+| [Hackerrank](misc/hackerrank.py) | download problems statements and solutions  | DNF |
+| [Torrentz](misc/torr_mov.py) | open Torrentz queries | DNF |
+| [Torrent](misc/torrent_downloader.py) | download .torrent files | DNF |
+| [FSG media downloader](misc/fsgmedia-downloader.py) | download pictures from (Samsung) FSG servers | ~4TB |
+| [NYC Marathon](nyc_marathon/fetch_details.py) | download full marathon results (since 1970)  | ~1 million |
+
 
 ## TODO bots
-- [ultra-marathon statisiken](http://statistik.d-u-v.org/geteventlist.php?year=all&dist=all&country=all&page=1)
-- [connemarathon (with pdf -> text conversion)](http://www.connemarathon.com/results/)
+| name | description | data size |
+| ------------- | ------------- | ------------- |
+| [ultra-marathon statisiken](http://statistik.d-u-v.org/geteventlist.php?year=all&dist=all&country=all&page=1) | ultramarathon performances | ~3 million |
+| [connemarathon (with pdf -> text conversion)](http://www.connemarathon.com/results/) | connemarathon (since 2002)  | ~300000 |
+
 
 ## Install
 Usually just a few dependencies are needed:
