@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 0.1.3 - 2017-04-27
+
+### Added
+- statistik races list fetcher (async via tor)
+
 ## 0.1.2 - 2017-04-27
 
 ### Tested
