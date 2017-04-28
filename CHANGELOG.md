@@ -7,6 +7,10 @@ All notable changes to this project will be documented in this file.
 - statistik races list fetcher (async via tor)
 - statistik races details fetcher (async via tor)
 
+### Fixed
+- statistik races list fetcher pages url
+- statistik races details fetcher folders path
+
 ### Removed
 - time profiling utils
 

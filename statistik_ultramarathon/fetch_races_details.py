@@ -199,11 +199,12 @@ def save_race_details_to_file(raw_html, out_dir, url=None):
 
     try:
         details, results = get_details_of_race_in_page(raw_html, url=url)  # parse page
-        race_out_dir = os.path.join(out_dir, details["name"], details["distance"])  # specific folder for race
+        race_out_dir = os.path.join(out_dir, details["name"], details["distance"],
+                                    details["date"].replace("/", "-"))  # specific folder for race
         if not os.path.exists(race_out_dir):
             os.makedirs(race_out_dir)  # prepare output directory
 
-        out_file = os.path.join(race_out_dir, details["date"].replace("/", "-") + ".csv")  # output file for this race
+        out_file = os.path.join(race_out_dir, "results.csv")  # output file for this race
         keys = results[0].keys()
         with open(out_file, "w") as output_file:  # write race results (standings)
             dict_writer = csv.DictWriter(output_file, keys, quotechar="\"", delimiter=",")

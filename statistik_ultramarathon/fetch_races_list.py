@@ -39,7 +39,7 @@ def get_url_of_page(p):
         Url of selected page
     """
 
-    return BASE_URL + "geteventlist.php?year=all&dist=all&country=all&page" + str(p)
+    return BASE_URL + "geteventlist.php?year=all&dist=all&country=all&page=" + str(p)
 
 
 def create_args():
