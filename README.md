@@ -4,6 +4,8 @@
 
 [![Code Health](https://landscape.io/github/sirfoga/scrapebots/master/landscape.svg?style=flat
 )](https://landscape.io/github/sirfoga/scrapebots/master)
+[![Python version](https://img.shields.io/badge/Python-3.5-blue.svg
+)](https://www.python.org/download/releases/3.4.0/)
 
 
 ## Available bots

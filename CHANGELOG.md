@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - statistik races list fetcher (async via tor)
 - statistik races details fetcher (async via tor)
+- statistik runners details fetcher (async via tor)
 
 ### Fixed
 - statistik races list fetcher pages url
