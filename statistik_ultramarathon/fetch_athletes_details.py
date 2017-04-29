@@ -22,9 +22,11 @@ import csv
 import json
 import os
 import time
+import traceback
 from datetime import datetime
 
 import aiohttp
+import psutil
 from aiosocks.connector import ProxyConnector, ProxyClientRequest
 from bs4 import BeautifulSoup
 from hal.time.profile import print_time_eta, get_time_eta
@@ -35,9 +37,20 @@ WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        "athletes_details" + str(int(time.time())) + ".log")
+                        "athletes_details-" + str(int(time.time())) + ".log")
 MIN_RUNNER_PAGE = 1  # minimum page where to find runner
 MAX_RUNNER_PAGE = 446958  # 946958  # maximum page where to find runner
+
+
+def get_memory_usage():
+    """
+    :return: float
+        MB of memory used by this process
+    """
+
+    process = psutil.Process(os.getpid())
+    m = process.memory_info().rss
+    return m / (1024 * 1024)
 
 
 def get_url_of_page(p):
@@ -271,7 +284,11 @@ def get_details_of_runner_in_page(raw_html, url=None):
     """
 
     details = get_runner_details(raw_html, url=url)
-    results = get_runner_results(raw_html)
+    try:
+        results = get_runner_results(raw_html)
+    except:
+        results = []
+
     return details, results
 
 
@@ -294,22 +311,26 @@ def save_runner_details_to_file(raw_html, out_dir, url=None):
         if not os.path.exists(runner_out_dir):
             os.makedirs(runner_out_dir)  # prepare output directory
 
-        out_file = os.path.join(runner_out_dir, "results.csv")  # output file for this runner
-        keys = results[0].keys()
-        with open(out_file, "w") as output_file:  # write race results (standings)
-            dict_writer = csv.DictWriter(output_file, keys, quotechar="\"", delimiter=",")
-            dict_writer.writeheader()
-            dict_writer.writerows(results)
-
-        out_file_details = os.path.join(runner_out_dir, "details.json")  # output file for details
-        with open(out_file_details, "w") as o:  # write race details
+        out_file = os.path.join(runner_out_dir, "details.json")  # output file for details
+        with open(out_file, "w", buffering=1) as o:  # use buffer
             json.dump(details, o, indent=4, sort_keys=True)
+            o.flush()
 
-        print("Output data written to", out_file)
+        if len(results) > 1:
+            out_file = os.path.join(runner_out_dir, "results.csv")  # output file for this runner
+            keys = results[0].keys()
+            with open(out_file, "w", buffering=1) as o:  # use buffer
+                dict_writer = csv.DictWriter(o, keys, quotechar="\"", delimiter=",")
+                dict_writer.writeheader()
+                dict_writer.writerows(results)
+                o.flush()
+
+        print("Output data written to", runner_out_dir.replace(out_dir, ""))
     except Exception as e:
         print("\t!!!\tErrors parsing url", str(url))
         append_to_file(LOG_FILE, "Errors parsing url " + str(url))
         append_to_file(LOG_FILE, "\t" + str(e) + "\n")
+        traceback.print_exc()
 
 
 async def fetch(u):
@@ -365,7 +386,7 @@ if __name__ == '__main__':
             os.makedirs(output_dir)  # prepare output directory
 
         urls_list = [get_url_of_page(p) for p in
-                     range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)]  # get list of races from input file
+                     range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)][:100]  # get list of races from input file
         total = len(urls_list)
         raw_sources = []  # list of raw HTML pages to parse
 
@@ -378,17 +399,20 @@ if __name__ == '__main__':
 
         print("Saving races results")
         start_time = time.time()
-        saved_runners_counter = 0  # counter of how many races have been saved
-        for k in raw_sources:
-            page_source = k["html"]
-            save_runner_details_to_file(page_source, output_dir, url=k["url"])
-            saved_runners_counter += 1
+        for i in range(len(raw_sources)):
+            page_source = raw_sources[i]["html"]
+            save_runner_details_to_file(
+                page_source,
+                output_dir,
+                url=raw_sources[i]["url"]
+            )
             print_time_eta(
                 get_time_eta(
-                    saved_runners_counter,
+                    i + 1,
                     total,
                     start_time
                 )  # get ETA
             )  # debug info
+            print(get_memory_usage())
     else:
         print("Error while parsing args.")
