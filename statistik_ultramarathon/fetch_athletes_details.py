@@ -19,10 +19,10 @@
 import argparse
 import asyncio
 import csv
+import gc
 import json
 import os
 import time
-import traceback
 from datetime import datetime
 
 import aiohttp
@@ -51,6 +51,15 @@ def get_memory_usage():
     process = psutil.Process(os.getpid())
     m = process.memory_info().rss
     return m / (1024 * 1024)
+
+
+def force_garbage_collect():
+    """
+    :return: void
+        Releases memory used
+    """
+
+    gc.collect()
 
 
 def get_url_of_page(p):
@@ -330,7 +339,6 @@ def save_runner_details_to_file(raw_html, out_dir, url=None):
         print("\t!!!\tErrors parsing url", str(url))
         append_to_file(LOG_FILE, "Errors parsing url " + str(url))
         append_to_file(LOG_FILE, "\t" + str(e) + "\n")
-        traceback.print_exc()
 
 
 async def fetch(u):
@@ -355,8 +363,11 @@ async def fetch(u):
                         start_time
                     )  # get ETA
                 )  # debug info
+
+                force_garbage_collect()
+                print("\tMemory used:", get_memory_usage(), "MB")
                 return body
-    except Exception as e:
+    except:
         print("\t!!!\tErrors fetching url", str(u))
         append_to_file(LOG_FILE, "Errors fetching url " + str(u))
         return ""
@@ -386,7 +397,7 @@ if __name__ == '__main__':
             os.makedirs(output_dir)  # prepare output directory
 
         urls_list = [get_url_of_page(p) for p in
-                     range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)][:100]  # get list of races from input file
+                     range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)]  # get list of races from input file
         total = len(urls_list)
         raw_sources = []  # list of raw HTML pages to parse
 
@@ -396,6 +407,8 @@ if __name__ == '__main__':
         future = asyncio.ensure_future(fetch_urls(urls_list))  # fetch sources
         loop.run_until_complete(future)
         loop.close()
+
+        urls_list = None  # free memory
 
         print("Saving races results")
         start_time = time.time()
@@ -413,6 +426,9 @@ if __name__ == '__main__':
                     start_time
                 )  # get ETA
             )  # debug info
-            print(get_memory_usage())
+
+            force_garbage_collect()
+            raw_sources[i] = None  # free memory
+            print("\tMemory used:", get_memory_usage(), "MB")
     else:
         print("Error while parsing args.")
