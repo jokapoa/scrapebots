@@ -4,13 +4,14 @@ All notable changes to this project will be documented in this file.
 ## 0.1.3 - 2017-04-27
 
 ### Added
-- statistik races list fetcher (async via tor)
-- statistik races details fetcher (async via tor)
-- statistik runners details fetcher (async via tor)
+- statistik races list downloader (async via tor)
+- statistik races details downloader (async via tor)
+- statistik runners details downloader (async via tor)
+- statistik runners mongodb database downloader (async via tor)
 
 ### Fixed
-- statistik races list fetcher pages url
-- statistik races details fetcher folders path
+- statistik races list downloader pages url
+- statistik races details downloader folders path
 
 ### Removed
 - time profiling utils
@@ -50,7 +51,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - london marathon bot: parse event id
-- async details fetcher can take note of urls too
+- async details downloader can take note of urls too
 - get_time_eta as hh:mm:ss format
 - london marathon bot: take note of url errors too
 

@@ -16,7 +16,6 @@
 # limitations under the License.
 
 
-import argparse
 import asyncio
 import csv
 import gc
@@ -24,12 +23,14 @@ import json
 import os
 import time
 from datetime import datetime
+from datetime import timedelta
 
 import aiohttp
 import psutil
 from aiosocks.connector import ProxyConnector, ProxyClientRequest
 from bs4 import BeautifulSoup
 from hal.time.profile import print_time_eta, get_time_eta
+from pymongo import MongoClient
 
 VALUE_NOT_FOUND = str("DNF")
 BASE_URL = "http://statistik.d-u-v.org/"
@@ -37,9 +38,10 @@ WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        "athletes_details-" + str(int(time.time())) + ".log")
-MIN_RUNNER_PAGE = 1  # minimum page where to find runner
-MAX_RUNNER_PAGE = 446958  # 946958  # maximum page where to find runner
+                        "fetch_runners_database-" + str(int(time.time())) + ".log")
+MIN_RUNNER_PAGE = 1  # (1) minimum page where to find runner
+MAX_RUNNER_PAGE = 1000  # (946958)  # maximum page where to find runner
+DATABASE_NAME = "statistik-athletes"
 
 
 def get_memory_usage():
@@ -105,42 +107,6 @@ def append_to_file(f, s):
     except Exception as e:
         print("Cannot append", str(s), "to", str(f))
         print(str(e))
-
-
-def create_args():
-    """
-    :return: ArgumentParser
-        Parser that handles cmd arguments.
-    """
-
-    parser = argparse.ArgumentParser(usage="-of <path to output folder>")
-    parser.add_argument("-f", dest="path", help="path to output folder", required=True)
-    return parser
-
-
-def parse_args(parser):
-    """
-    :param parser: ArgumentParser
-        Object that holds cmd arguments.
-    :return: tuple
-        Values of arguments.
-    """
-
-    args = parser.parse_args()
-    return str(args.path)
-
-
-def check_args(path):
-    """
-    :param path: str
-        File to parse
-    :return: bool
-        True iff args are correct
-    """
-
-    if not os.path.exists(path):
-        os.makedirs(path)
-    return True
 
 
 def get_runner_details(raw_html, url=None):
@@ -341,41 +307,87 @@ def save_runner_details_to_file(raw_html, out_dir, url=None):
         append_to_file(LOG_FILE, "\t" + str(e) + "\n")
 
 
-async def fetch(u):
+def get_runner_details_as_dict(raw_html, url=None):
+    """
+    :param raw_html: str
+        Raw HTML page with table with races list
+    :param url: str
+        Url of this page
+    :return: {}
+        Runner details as dict
+    """
+
     try:
-        conn = ProxyConnector(remote_resolve=True)
-        async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest,
-                                         cookies=WEBPAGE_COOKIES) as session:
-            async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
-                body = await response.text()
-                raw_sources.append({
-                    "url": str(u),
-                    "html": str(body)
-                })  # add url and page source
+        details, results = get_details_of_runner_in_page(raw_html, url=url)  # parse page
+        details["results"] = results  # add results to dict
+        return details
+    except Exception as e:
+        print("\t!!!\tErrors getting json from url", str(url))
+        append_to_file(LOG_FILE, "Errors getting json from url " + str(url))
+        append_to_file(LOG_FILE, "\t" + str(e) + "\n")
 
-                if response.status != 200:
-                    print(response.status, u)
 
-                print_time_eta(
-                    get_time_eta(
-                        len(raw_sources),
-                        total,
-                        start_time
-                    )  # get ETA
-                )  # debug info
+def save_runner_details_to_db(raw_html, url=None):
+    """
+    :param raw_html: str
+        Raw HTML page with table with races list
+    :param url: str
+        Url of this page
+    :return: void
+        Saves runner details to mongo db database
+    """
 
-                force_garbage_collect()
-                print("\tMemory used:", get_memory_usage(), "MB")
-                return body
-    except:
-        print("\t!!!\tErrors fetching url", str(u))
-        append_to_file(LOG_FILE, "Errors fetching url " + str(u))
-        return ""
+    try:
+        details = get_runner_details_as_dict(raw_html, url=url)  # get details
+        db_table = str(details["birth_year"])  # db has tables for each year of runners
+        if db[db_table].find(details).count() < 1:  # avoid duplicates
+            db[db_table].insert_one(details)
+    except Exception as e:
+        print("\t!!!\tErrors saving url", str(url), "to db")
+        append_to_file(LOG_FILE, "Errors saving url " + str(url) + " to db")
+        append_to_file(LOG_FILE, "\t" + str(e) + "\n")
+
+
+async def try_and_fetch(u, max_attempts=4, time_delay_between_attempts=0.5):
+    """
+    :param u: str
+        Url to fetch
+    :param max_attempts: int
+        Max number of attempts to get page
+    :param time_delay_between_attempts: float
+        Number of seconds to wait between 2 consecutive attempts
+    :return: str
+        Body of page with url or null
+    """
+
+    for _ in range(max_attempts):
+        try:
+            conn = ProxyConnector(remote_resolve=True)
+            async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest,
+                                             cookies=WEBPAGE_COOKIES) as session:
+                async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
+                    body = await response.text()
+                    raw_sources.append({
+                        "url": str(u),
+                        "html": str(body)
+                    })  # add url and page source
+
+                    print_time_eta(
+                        get_time_eta(
+                            len(raw_sources),
+                            total,
+                            start_time
+                        )  # get ETA
+                    )  # debug info
+                    return body
+        except:
+            time.sleep(time_delay_between_attempts)
+    return None
 
 
 async def bound_fetch(sem, url):
     async with sem:
-        await fetch(url)
+        await try_and_fetch(url)
 
 
 async def fetch_urls(list_of_urls, max_concurrent=1000):
@@ -390,45 +402,60 @@ async def fetch_urls(list_of_urls, max_concurrent=1000):
 
 
 if __name__ == '__main__':
-    path_in = parse_args(create_args())
-    if check_args(path_in):
-        output_dir = os.path.join(os.path.dirname(path_in), "out-" + str(int(time.time())))  # output directory
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)  # prepare output directory
+    start_time_overall = time.time()
+    start_mem_overall = get_memory_usage()
 
-        urls_list = [get_url_of_page(p) for p in
-                     range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)]  # get list of races from input file
-        total = len(urls_list)
-        raw_sources = []  # list of raw HTML pages to parse
+    urls_list = [get_url_of_page(p) for p in
+                 range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)]  # get list of urls
+    total = len(urls_list)
+    raw_sources = []  # list of raw HTML pages to parse
 
-        print("Fetching HTML pages")
-        start_time = time.time()
-        loop = asyncio.get_event_loop()
-        future = asyncio.ensure_future(fetch_urls(urls_list))  # fetch sources
-        loop.run_until_complete(future)
-        loop.close()
+    print("Fetching HTML pages")
+    start_time = time.time()
+    loop = asyncio.get_event_loop()
+    future = asyncio.ensure_future(fetch_urls(urls_list))  # fetch sources
+    loop.run_until_complete(future)
+    loop.close()
 
-        urls_list = None  # free memory
+    urls_list = None  # free memory
 
-        print("Saving races results")
-        start_time = time.time()
-        for i in range(len(raw_sources)):
-            page_source = raw_sources[i]["html"]
-            save_runner_details_to_file(
-                page_source,
-                output_dir,
-                url=raw_sources[i]["url"]
-            )
-            print_time_eta(
-                get_time_eta(
-                    i + 1,
-                    total,
-                    start_time
-                )  # get ETA
-            )  # debug info
+    # initialize mongodb interface
+    mongodb_client = MongoClient()  # mongodb client
+    mongodb_client.drop_database("statistik-athletes")  # remove all previous data in database
+    db = mongodb_client[DATABASE_NAME]  # database to use
 
-            force_garbage_collect()
-            raw_sources[i] = None  # free memory
-            print("\tMemory used:", get_memory_usage(), "MB")
-    else:
-        print("Error while parsing args.")
+    print("Fetched correctly", len(raw_sources), "urls")
+    print("Saving databased with athletes details")
+    start_time = time.time()
+    for i in range(len(raw_sources)):
+        page_source = raw_sources[i]["html"]
+        save_runner_details_to_db(
+            page_source,
+            url=raw_sources[i]["url"]
+        )
+        print_time_eta(
+            get_time_eta(
+                i + 1,
+                total,
+                start_time
+            )  # get ETA
+        )  # debug info
+
+        raw_sources[i] = None  # free memory
+        force_garbage_collect()
+        print("\tMemory used:", get_memory_usage(), "MB")
+
+    mongodb_client.close()  # close mongodb connection
+
+    end_time_overall = time.time()
+    delta_time_overall = end_time_overall - start_time_overall
+    end_mem_overall = get_memory_usage()
+    delta_mem_overall = end_mem_overall - start_mem_overall
+
+    print(
+        "Done fetching", total, "runners details, saving", total,
+        "runners data to mongodb database \"" + str(DATABASE_NAME) + "\". Job started at",
+        datetime.fromtimestamp(start_time_overall).strftime("%Y-%m-%d %H:%M:%S"), "completed at",
+        datetime.fromtimestamp(end_time_overall).strftime("%Y-%m-%d %H:%M:%S"), " and took",
+        str(timedelta(seconds=int(delta_time_overall))), "and ~", str(delta_mem_overall), "MB to complete."
+    )
