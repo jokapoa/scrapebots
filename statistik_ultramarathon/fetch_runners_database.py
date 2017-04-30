@@ -33,14 +33,14 @@ from hal.time.profile import print_time_eta, get_time_eta
 from pymongo import MongoClient
 
 VALUE_NOT_FOUND = str("DNF")  # value to put when data cannot be found (or some errors occur)
-BASE_URL = "http://statistik.d-u-v.org/"  # url of webpage
+BASE_URL = "http://statistik.d-u-v.org/"  # url of web-page
 WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         "fetch_runners_database-" + str(int(time.time())) + ".log")  # path to log file
 MIN_RUNNER_PAGE = 100000  # (1) minimum page where to find runner
-MAX_RUNNER_PAGE = 200000  # (946958)  # maximum page where to find runner
+MAX_RUNNER_PAGE = 250000  # (946958)  # maximum page where to find runner
 
 DATABASE_NAME = "statistik-athletes"  # name of database to use
 mongodb_client = MongoClient()  # mongodb client
@@ -342,11 +342,11 @@ def save_runner_details_to_db(raw_html, url=None):
     """
 
     try:
-        details = get_runner_details_as_dict(raw_html, url=url)  # get details
-        db_table = str(details["birth_year"])  # db has tables for each year of runners
-        if db[db_table].find(details).count() < 1:  # avoid duplicates
-            db[db_table].insert_one(details)
-    except Exception as e:
+        runner_details = get_runner_details_as_dict(raw_html, url=url)  # get details
+        db_table = str(runner_details["birth_year"])  # db has tables for each year of runners
+        if db[db_table].find(runner_details).count() < 1:  # avoid duplicates
+            db[db_table].insert_one(runner_details)
+    except:
         print("\t!!!\tErrors saving url", str(url), "to db")
         append_to_file(LOG_FILE, "Errors saving url " + str(url) + " to db")
 
@@ -460,7 +460,7 @@ if __name__ == '__main__':
         t = str(tables_db[i])
         db[t].insert_many(
             [d for d in details_list if (tables_key in d and str(d[tables_key]) == t)]  # get all dicts with that key
-        )  # insert all details with that key
+        )  # insert all details with that key (avoiding duplicates)
 
         print_time_eta(
             get_time_eta(

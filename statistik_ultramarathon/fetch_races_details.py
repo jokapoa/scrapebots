@@ -36,7 +36,8 @@ BASE_URL = "http://statistik.d-u-v.org/"
 WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
-LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)), str(int(time.time())) + ".log")
+LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                        str(os.path.basename(__file__)) + str(int(time.time())) + ".log")
 
 
 def append_to_file(f, s):

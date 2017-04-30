@@ -22,13 +22,12 @@
 | [FSG media downloader](misc/fsgmedia-downloader.py) | download pictures from (Samsung) FSG servers | ~4TB |
 | [NYC Marathon](nyc_marathon/fetch_details.py) | download full marathon results (since 1970)  | ~1 million |
 | [connemarathon](conne_marathon/bot.py) | connemarathon (since 2002)  | ~30000 |
+| [ultra-marathon statisik](statistik_ultramarathon) | ultra-marathon performances | ~3 million |
 
 
-## TODO bots
-| name | description | data size |
-| ------------- | ------------- | ------------- |
-| [ultra-marathon statisiken](http://statistik.d-u-v.org/geteventlist.php?year=all&dist=all&country=all&page=1) | ultramarathon performances | ~3 million |
-
+<!-- ## TODO bots -->
+<!-- | name | description | data size | -->
+<!-- | ------------- | ------------- | ------------- | -->
 
 ## Install
 Usually just a few dependencies are needed:
