@@ -32,16 +32,20 @@ from bs4 import BeautifulSoup
 from hal.time.profile import print_time_eta, get_time_eta
 from pymongo import MongoClient
 
-VALUE_NOT_FOUND = str("DNF")
-BASE_URL = "http://statistik.d-u-v.org/"
+VALUE_NOT_FOUND = str("DNF")  # value to put when data cannot be found (or some errors occur)
+BASE_URL = "http://statistik.d-u-v.org/"  # url of webpage
 WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        "fetch_runners_database-" + str(int(time.time())) + ".log")
-MIN_RUNNER_PAGE = 1  # (1) minimum page where to find runner
-MAX_RUNNER_PAGE = 1000  # (946958)  # maximum page where to find runner
-DATABASE_NAME = "statistik-athletes"
+                        "fetch_runners_database-" + str(int(time.time())) + ".log")  # path to log file
+MIN_RUNNER_PAGE = 100000  # (1) minimum page where to find runner
+MAX_RUNNER_PAGE = 200000  # (946958)  # maximum page where to find runner
+
+DATABASE_NAME = "statistik-athletes"  # name of database to use
+mongodb_client = MongoClient()  # mongodb client
+# mongodb_client.drop_database(DATABASE_NAME)  # remove all previous data in database
+db = mongodb_client[DATABASE_NAME]  # database to use
 
 
 def get_memory_usage():
@@ -348,7 +352,7 @@ def save_runner_details_to_db(raw_html, url=None):
         append_to_file(LOG_FILE, "\t" + str(e) + "\n")
 
 
-async def try_and_fetch(u, max_attempts=4, time_delay_between_attempts=0.5):
+async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
     """
     :param u: str
         Url to fetch
@@ -387,7 +391,7 @@ async def try_and_fetch(u, max_attempts=4, time_delay_between_attempts=0.5):
 
 async def bound_fetch(sem, url):
     async with sem:
-        await try_and_fetch(url)
+        await try_and_fetch(url, max_attempts=1, time_delay_between_attempts=0)
 
 
 async def fetch_urls(list_of_urls, max_concurrent=1000):
@@ -403,36 +407,33 @@ async def fetch_urls(list_of_urls, max_concurrent=1000):
 
 if __name__ == '__main__':
     start_time_overall = time.time()
-    start_mem_overall = get_memory_usage()
 
     urls_list = [get_url_of_page(p) for p in
                  range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)]  # get list of urls
     total = len(urls_list)
     raw_sources = []  # list of raw HTML pages to parse
 
-    print("Fetching HTML pages")
+    print("\tFetching HTML pages")
     start_time = time.time()
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(fetch_urls(urls_list))  # fetch sources
     loop.run_until_complete(future)
     loop.close()
 
+    print("\tGarbage-collecting useless stuff")
     urls_list = None  # free memory
+    force_garbage_collect()
+    details_list = []
+    total = len(raw_sources)
 
-    # initialize mongodb interface
-    mongodb_client = MongoClient()  # mongodb client
-    mongodb_client.drop_database("statistik-athletes")  # remove all previous data in database
-    db = mongodb_client[DATABASE_NAME]  # database to use
-
-    print("Fetched correctly", len(raw_sources), "urls")
-    print("Saving databased with athletes details")
+    print("\tParsing HTML pages")
     start_time = time.time()
     for i in range(len(raw_sources)):
-        page_source = raw_sources[i]["html"]
-        save_runner_details_to_db(
-            page_source,
+        details = get_runner_details_as_dict(
+            raw_sources[i]["html"],
             url=raw_sources[i]["url"]
-        )
+        )  # get details
+        details_list.append(details)
         print_time_eta(
             get_time_eta(
                 i + 1,
@@ -445,16 +446,42 @@ if __name__ == '__main__':
         force_garbage_collect()
         print("\tMemory used:", get_memory_usage(), "MB")
 
+    print("\tGarbage-collecting useless stuff")
+    raw_sources = None  # free memory
+    force_garbage_collect()
+
+    print("\tSaving runners details to database")
+    start_time = time.time()
+    tables_db = [d["birth_year"] for d in details_list]  # all tables of database
+    tables_db = list(set(tables_db))  # remove duplicates
+    total = len(tables_db)
+    start_time = time.time()
+    for i in range(len(tables_db)):
+        t = str(tables_db[i])
+        db[t].insert_many(
+            [d for d in details_list if str(d["birth_year"]) == t]
+        )  # insert all details with that key
+
+        print_time_eta(
+            get_time_eta(
+                i + 1,
+                total,
+                start_time
+            )  # get ETA
+        )  # debug info
+
+        tables_db[i] = None  # free memory
+        force_garbage_collect()
+        print("\tMemory used:", get_memory_usage(), "MB")
+
     mongodb_client.close()  # close mongodb connection
 
     end_time_overall = time.time()
     delta_time_overall = end_time_overall - start_time_overall
-    end_mem_overall = get_memory_usage()
-    delta_mem_overall = end_mem_overall - start_mem_overall
+    delta_mem_overall = get_memory_usage()
 
     print(
-        "Done fetching", total, "runners details, saving", total,
-        "runners data to mongodb database \"" + str(DATABASE_NAME) + "\". Job started at",
+        "Done fetching saving runners data to mongodb database \"" + str(DATABASE_NAME) + "\". Job started at",
         datetime.fromtimestamp(start_time_overall).strftime("%Y-%m-%d %H:%M:%S"), "completed at",
         datetime.fromtimestamp(end_time_overall).strftime("%Y-%m-%d %H:%M:%S"), " and took",
         str(timedelta(seconds=int(delta_time_overall))), "and ~", str(delta_mem_overall), "MB to complete."
