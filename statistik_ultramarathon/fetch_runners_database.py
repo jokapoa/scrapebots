@@ -325,10 +325,10 @@ def get_runner_details_as_dict(raw_html, url=None):
         details, results = get_details_of_runner_in_page(raw_html, url=url)  # parse page
         details["results"] = results  # add results to dict
         return details
-    except Exception as e:
-        print("\t!!!\tErrors getting json from url", str(url))
-        append_to_file(LOG_FILE, "Errors getting json from url " + str(url))
-        append_to_file(LOG_FILE, "\t" + str(e) + "\n")
+    except:
+        print("\t!!!\tErrors getting dict from url", str(url))
+        append_to_file(LOG_FILE, "Errors getting dict from url " + str(url))
+        return {}
 
 
 def save_runner_details_to_db(raw_html, url=None):
@@ -349,7 +349,6 @@ def save_runner_details_to_db(raw_html, url=None):
     except Exception as e:
         print("\t!!!\tErrors saving url", str(url), "to db")
         append_to_file(LOG_FILE, "Errors saving url " + str(url) + " to db")
-        append_to_file(LOG_FILE, "\t" + str(e) + "\n")
 
 
 async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
@@ -452,14 +451,15 @@ if __name__ == '__main__':
 
     print("\tSaving runners details to database")
     start_time = time.time()
-    tables_db = [d["birth_year"] for d in details_list]  # all tables of database
+    tables_key = "birth_year"
+    tables_db = [d[tables_key] for d in details_list]  # all tables of database
     tables_db = list(set(tables_db))  # remove duplicates
     total = len(tables_db)
     start_time = time.time()
     for i in range(len(tables_db)):
         t = str(tables_db[i])
         db[t].insert_many(
-            [d for d in details_list if str(d["birth_year"]) == t]
+            [d for d in details_list if (tables_key in d and str(d[tables_key]) == t)]  # get all dicts with that key
         )  # insert all details with that key
 
         print_time_eta(
