@@ -37,7 +37,7 @@ WEBPAGE_COOKIES = {
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         "fetch_runners_database-" + str(int(time.time())) + ".log")  # path to log file
 MIN_RUNNER_PAGE = 450000  # (1) minimum page where to find runner
-MAX_RUNNER_PAGE = 650000  # (946958)  # maximum page where to find runner
+MAX_RUNNER_PAGE = 600000  # (946958)  # maximum page where to find runner
 
 DATABASE_NAME = "statistik-athletes"  # name of database to use
 COLLECTIONS_KEY = "birth_year"

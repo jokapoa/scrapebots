@@ -39,7 +39,6 @@ mongodb_client = MongoClient()  # mongodb client
 db = mongodb_client[DATABASE_NAME]  # database to use
 for c in db.collection_names():
     db[c].create_index("url", unique=True)  # set primary key
-db_table = "races"  # database table (i.e collection) to use
 
 
 def get_race_dict_from_files(details_file, results_file):
@@ -94,6 +93,7 @@ if __name__ == '__main__':
         d = get_dict_in_folder(p)
         if d is not None:
             try:
+                db_table = str(d["date"]).split("/")[0]
                 db[db_table].insert_one(d)
             except Exception as e:
                 if "duplicate key" not in str(e):
