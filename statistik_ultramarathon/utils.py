@@ -16,6 +16,9 @@
 # limitations under the License.
 
 
+import pandas as pd
+
+
 def append_to_file(f, s):
     """
     :param f: str
@@ -33,3 +36,15 @@ def append_to_file(f, s):
     except Exception as e:
         print("Cannot append", str(s), "to", str(f))
         print(str(e))
+
+
+def get_dicts_from_csv(path_file):
+    """
+    :param path_file: str
+        File to parse
+    :return: [] of {}
+        List of data details in file
+    """
+
+    d = pd.read_csv(path_file).T.to_dict()
+    return list(d.values())

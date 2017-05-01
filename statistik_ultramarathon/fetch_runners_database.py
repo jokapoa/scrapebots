@@ -180,11 +180,10 @@ if __name__ == "__main__":
             url=raw_sources[i]["url"]
         )  # get details
 
-        #   # use already allocated memory
-
         if d is not None:
             try:
                 db[str(d[COLLECTIONS_KEY])].insert_one(d)
+                raw_sources[i] = None  # release memory
             except Exception as e:
                 if "duplicate key error" not in str(e):
                     append_to_file(LOG_FILE, str(e))
@@ -197,38 +196,7 @@ if __name__ == "__main__":
             )  # get ETA
         )  # debug info
 
-        # force_garbage_collect()
         print("\tMemory used:", get_memory_usage(), "MB")
-
-    print("\tGarbage-collecting useless stuff")
-    # details_list = [d for d in raw_sources if d is not None]
-    # raw_sources = None  # free memory
-    # force_garbage_collect()
-
-    print("\tSaving runners details to database")
-    # start_time = time.time()
-    # collections_db = [str(d[COLLECTIONS_KEY]) for d in details_list if COLLECTIONS_KEY in d]  # all tables of database
-    # collections_db = list(set(collections_db))  # remove duplicates
-    # total = len(collections_db)
-    # start_time = time.time()
-    # for i in range(len(collections_db)):
-    #     t = str(collections_db[i])
-    #     db[t].insert_many(
-    #         [d for d in details_list if (COLLECTIONS_KEY in d and str(d[COLLECTIONS_KEY]) == t)],  # get all dicts with that key
-    #         ordered=False
-    #     )  # insert all details with that key (avoiding duplicates)
-    #
-    #     print_time_eta(
-    #         get_time_eta(
-    #             i + 1,
-    #             total,
-    #             start_time
-    #         )  # get ETA
-    #     )  # debug info
-    #
-    #     collections_db[i] = None  # free memory
-    #     force_garbage_collect()
-    #     print("\tMemory used:", get_memory_usage(), "MB")
 
     mongodb_client.close()  # close mongodb connection
 
@@ -241,4 +209,4 @@ if __name__ == "__main__":
         datetime.fromtimestamp(start_time_overall).strftime("%Y-%m-%d %H:%M:%S"), "completed at",
         datetime.fromtimestamp(end_time_overall).strftime("%Y-%m-%d %H:%M:%S"), " and took",
         str(timedelta(seconds=int(delta_time_overall))), "and ~", str(delta_mem_overall), "MB to complete."
-    )
+    )  # debug info

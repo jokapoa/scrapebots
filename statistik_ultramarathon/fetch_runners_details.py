@@ -19,14 +19,12 @@
 import argparse
 import asyncio
 import csv
-import gc
 import json
 import os
 import time
 from datetime import datetime
 
 import aiohttp
-import psutil
 from aiosocks.connector import ProxyConnector, ProxyClientRequest
 from bs4 import BeautifulSoup
 from hal.time.profile import print_time_eta, get_time_eta
@@ -40,26 +38,6 @@ LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         "fetch_runners_details-" + str(int(time.time())) + ".log")
 MIN_RUNNER_PAGE = 1  # (1) minimum page where to find runner
 MAX_RUNNER_PAGE = 1000  # (946958)  # maximum page where to find runner
-
-
-def get_memory_usage():
-    """
-    :return: float
-        MB of memory used by this process
-    """
-
-    process = psutil.Process(os.getpid())
-    m = process.memory_info().rss
-    return m / (1024 * 1024)
-
-
-def force_garbage_collect():
-    """
-    :return: void
-        Releases memory used
-    """
-
-    gc.collect()
 
 
 def get_url_of_page(p):

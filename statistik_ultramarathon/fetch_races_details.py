@@ -24,12 +24,11 @@ import os
 import time
 
 import aiohttp
-import pandas as pd
 from aiosocks.connector import ProxyConnector, ProxyClientRequest
 from hal.time.profile import print_time_eta, get_time_eta
 
 from .parsers import get_details_of_race_in_page
-from .utils import append_to_file
+from .utils import append_to_file, get_dicts_from_csv
 
 VALUE_NOT_FOUND = str("DNF")
 BASE_URL = "http://statistik.d-u-v.org/"
@@ -73,18 +72,6 @@ def check_args(path_file):
 
     assert os.path.exists(path_file)
     return True
-
-
-def get_races_from_file(path_file):
-    """
-    :param path_file: str
-        File to parse
-    :return: [] of {}
-        List of races details in file
-    """
-
-    d = pd.read_csv(path_file).T.to_dict()
-    return list(d.values())
 
 
 def save_race_details_to_file(raw_html, out_dir, url=None):
@@ -176,7 +163,7 @@ if __name__ == '__main__':
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)  # prepare output directory
 
-        races_list = get_races_from_file(path_in)  # get list of races from input file
+        races_list = get_dicts_from_csv(path_in)  # get list of races from input file
         total = len(races_list)
         raw_sources = []  # list of raw HTML pages to parse
         pages_to_fetch = [r["url"] for r in races_list]  # urls of pages to fetch
