@@ -1,52 +1,35 @@
-from pymongo import MongoClient
+# !/usr/bin/python3
+# coding: utf-8
+
+# Copyright 2017 Stefano Fogarollo
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 
-def remove_duplicates_in_mongodb_collection(db_name, collection_name, unique_keys):
+def append_to_file(f, s):
     """
-    :param db_name: str
-        Name of database to scan for duplicates
-    :param collection_name: str
-        Name of collection  of database to scan for duplicates
-    :param unique_keys: [] of str
-        List of keys that must be unique
+    :param f: str
+        Path to file to append stuff to
+    :param s: str
+        Stuff to append
     :return: void
-        Removes all items (but one) with 2 equal unique_keys
+        Appends stuff to file
     """
 
-    mongodb_client = MongoClient()  # mongodb client
-    db = mongodb_client[db_name]  # database to use
-    coll = db[collection_name]
-    if coll.count() > 1:  # scan for duplicates if there are at least 2 items in collection
-        print("Before scanning for duplicates collection \"" + str(collection_name) + "\" has", coll.count(),
-              "elements.")
-
-        for mongodb_obj in coll.find():  # iterate through items in collection
-            d = {}  # dictionary to find duplicates (based on unique keys of object)
-            for k in unique_keys:
-                d[k] = mongodb_obj[k]
-            mongodb_obj_duplicates = coll.find(d)  # find objects ==
-            if mongodb_obj_duplicates.count() > 1:  # if there is more than one duplicate (one is the obj itself)
-                print("\tFound", mongodb_obj_duplicates.count(), "duplicates of", mongodb_obj["_id"])
-
-                # TODO: WTF coll.delete_many(list(mongodb_obj_duplicates)[1:])  # remove all but one
-
-        print("After scanning for duplicates collection \"" + str(collection_name) + "\" has",
-              coll.count(), "elements.")
-    else:
-        print("No duplicates in collection \"" + str(collection_name) + "\"!")
-
-
-def remove_duplicates_in_mongodb(db_name, unique_keys):
-    """
-    :param db_name: str
-        Name of database to scan for duplicates
-    :param unique_keys: [] of str
-        List of keys that must be unique
-    :return: void
-        Removes all items (but one) with 2 equal unique_keys
-    """
-
-    mongodb_client = MongoClient()  # mongodb client
-    db = mongodb_client[db_name]  # database to use
-    for c in db.collection_names():
-        remove_duplicates_in_mongodb_collection(db_name, c, unique_keys)
+    try:
+        with open(f, "a") as o:
+            o.write(str(s))
+            o.write("\n")
+    except Exception as e:
+        print("Cannot append", str(s), "to", str(f))
+        print(str(e))
