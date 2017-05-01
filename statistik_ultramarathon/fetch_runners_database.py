@@ -36,8 +36,8 @@ WEBPAGE_COOKIES = {
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         "fetch_runners_database-" + str(int(time.time())) + ".log")  # path to log file
-MIN_RUNNER_PAGE = 100000  # (1) minimum page where to find runner
-MAX_RUNNER_PAGE = 200000  # (946958)  # maximum page where to find runner
+MIN_RUNNER_PAGE = 450000  # (1) minimum page where to find runner
+MAX_RUNNER_PAGE = 650000  # (946958)  # maximum page where to find runner
 
 DATABASE_NAME = "statistik-athletes"  # name of database to use
 COLLECTIONS_KEY = "birth_year"
@@ -57,26 +57,6 @@ def get_url_of_page(p):
     """
 
     return BASE_URL + "getresultperson.php?runner=" + str(p)
-
-
-def save_runner_details_to_db(raw_html, url=None):
-    """
-    :param raw_html: str
-        Raw HTML page with table with races list
-    :param url: str
-        Url of this page
-    :return: void
-        Saves runner details to mongo db database
-    """
-
-    try:
-        runner_details = get_runner_details_as_dict(raw_html, url=url, log_file=LOG_FILE)  # get details
-        db_table = str(runner_details["birth_year"])  # db has tables for each year of runners
-        if db[db_table].find(runner_details).count() < 1:  # avoid duplicates
-            db[db_table].insert_one(runner_details)
-    except:
-        print("\t!!!\tErrors saving url", str(url), "to db")
-        append_to_file(LOG_FILE, "Errors saving url " + str(url) + " to db")
 
 
 async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
@@ -114,6 +94,7 @@ async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
                     return body
         except:
             time.sleep(time_delay_between_attempts)
+            append_to_file(LOG_FILE, "Cannot get url " + str(u))
     return None
 
 
@@ -158,7 +139,8 @@ if __name__ == "__main__":
     for i in range(len(raw_sources)):
         d = get_runner_details_as_dict(
             raw_sources[i]["html"],
-            url=raw_sources[i]["url"]
+            url=raw_sources[i]["url"],
+            log_file=LOG_FILE
         )  # get details
 
         if d is not None:
@@ -187,6 +169,6 @@ if __name__ == "__main__":
     print(
         "Done fetching and saving data to mongodb database \"" + str(DATABASE_NAME) + "\". Job started at",
         datetime.fromtimestamp(start_time_overall).strftime("%Y-%m-%d %H:%M:%S"), "completed at",
-        datetime.fromtimestamp(end_time_overall).strftime("%Y-%m-%d %H:%M:%S"), " and took",
+        datetime.fromtimestamp(end_time_overall).strftime("%Y-%m-%d %H:%M:%S"), ", took",
         str(timedelta(seconds=int(delta_time_overall))), "and ~", str(delta_mem_overall), "MB to complete."
     )  # debug info
