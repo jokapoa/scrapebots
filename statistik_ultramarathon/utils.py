@@ -18,6 +18,8 @@
 
 import pandas as pd
 
+VALUE_NOT_FOUND = str("DNF")  # value to put when data cannot be found (or some errors occur)
+
 
 def append_to_file(f, s):
     """

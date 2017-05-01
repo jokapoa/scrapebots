@@ -35,7 +35,7 @@ LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         str(os.path.basename(__file__)) + str(int(time.time())) + ".log")
 DATABASE_NAME = "statistik-races"  # name of database to use
 mongodb_client = MongoClient()  # mongodb client
-mongodb_client.drop_database(DATABASE_NAME)  # remove all previous data in database
+# mongodb_client.drop_database(DATABASE_NAME)  # remove all previous data in database
 db = mongodb_client[DATABASE_NAME]  # database to use
 for c in db.collection_names():
     db[c].create_index("url", unique=True)  # set primary key
@@ -55,9 +55,10 @@ def get_race_dict_from_files(details_file, results_file):
     race_dict = json.loads(open(details_file, "r").read())
     results_list = get_dicts_from_csv(results_file)
     for i in range(len(results_list)):
+        bson_compatible_dict = {}
         for k in results_list[i].keys():  # edit name of all keys with a dot (not officially accepted by bson)
-            results_list[i][str(k).replace(".", "")] = results_list[i][k]
-            del results_list[i][k]
+            bson_compatible_dict[str(k).replace(".", "")] = results_list[i][k]
+        results_list[i] = bson_compatible_dict
 
     race_dict["results"] = results_list
     return race_dict
@@ -92,7 +93,11 @@ if __name__ == '__main__':
     for p in paths:
         d = get_dict_in_folder(p)
         if d is not None:
-            db[db_table].insert_one(d)
+            try:
+                db[db_table].insert_one(d)
+            except Exception as e:
+                if "duplicate key" not in str(e):
+                    print(str(e))
 
         total_done += 1
         print_time_eta(

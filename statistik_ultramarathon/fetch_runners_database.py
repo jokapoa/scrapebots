@@ -26,19 +26,18 @@ import aiohttp
 from aiosocks.connector import ProxyConnector, ProxyClientRequest
 from hal.profile.mem import get_memory_usage, force_garbage_collect
 from hal.time.profile import print_time_eta, get_time_eta
+from parsers import get_runner_details_as_dict
 from pymongo import MongoClient
+from utils import append_to_file
 
-from .parsers import get_runner_details_as_dict
-
-VALUE_NOT_FOUND = str("DNF")  # value to put when data cannot be found (or some errors occur)
 BASE_URL = "http://statistik.d-u-v.org/"  # url of web-page
 WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         "fetch_runners_database-" + str(int(time.time())) + ".log")  # path to log file
-MIN_RUNNER_PAGE = 10000  # (1) minimum page where to find runner
-MAX_RUNNER_PAGE = 100000  # (946958)  # maximum page where to find runner
+MIN_RUNNER_PAGE = 100000  # (1) minimum page where to find runner
+MAX_RUNNER_PAGE = 200000  # (946958)  # maximum page where to find runner
 
 DATABASE_NAME = "statistik-athletes"  # name of database to use
 COLLECTIONS_KEY = "birth_year"
@@ -60,25 +59,6 @@ def get_url_of_page(p):
     return BASE_URL + "getresultperson.php?runner=" + str(p)
 
 
-def append_to_file(f, s):
-    """
-    :param f: str
-        Path to file to append stuff to
-    :param s: str
-        Stuff to append
-    :return: void
-        Appends stuff to file
-    """
-
-    try:
-        with open(f, "a") as o:
-            o.write(str(s))
-            o.write("\n")
-    except Exception as e:
-        print("Cannot append", str(s), "to", str(f))
-        print(str(e))
-
-
 def save_runner_details_to_db(raw_html, url=None):
     """
     :param raw_html: str
@@ -90,7 +70,7 @@ def save_runner_details_to_db(raw_html, url=None):
     """
 
     try:
-        runner_details = get_runner_details_as_dict(raw_html, url=url)  # get details
+        runner_details = get_runner_details_as_dict(raw_html, url=url, log_file=LOG_FILE)  # get details
         db_table = str(runner_details["birth_year"])  # db has tables for each year of runners
         if db[db_table].find(runner_details).count() < 1:  # avoid duplicates
             db[db_table].insert_one(runner_details)
@@ -128,7 +108,8 @@ async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
                             len(raw_sources),
                             total,
                             start_time
-                        )  # get ETA
+                        ),  # get ETA
+                        note="Got HTML"
                     )  # debug info
                     return body
         except:
@@ -193,10 +174,9 @@ if __name__ == "__main__":
                 i + 1,
                 total,
                 start_time
-            )  # get ETA
+            ),  # get ETA
+            note="Saved to database"
         )  # debug info
-
-        print("\tMemory used:", get_memory_usage(), "MB")
 
     mongodb_client.close()  # close mongodb connection
 

@@ -20,6 +20,22 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 from hal.time.utils import get_seconds
+from utils import append_to_file, VALUE_NOT_FOUND
+
+
+def remove_all_malformed_unicode(s):
+    """
+    :param s: str
+        Malformed unicode string
+    :return: str
+        Parsed string without unicode chars
+    """
+
+    o = str(s).strip()  # copy
+    while o.find("\\") > 0:
+        unicode_token = o[o.find("\\"): o.find("\\") + 4]  # find unicode char
+        o = o.replace(unicode_token, "")  # replace
+    return o.strip()
 
 
 def get_details_of_race_in_page(raw_html, url=None):
@@ -35,32 +51,35 @@ def get_details_of_race_in_page(raw_html, url=None):
     race_results = []
     race_distance_km = VALUE_NOT_FOUND  # distance of race in km
     soup = BeautifulSoup(str(raw_html), "lxml")  # HTML parser
-    rows = soup.find_all("table")[4].find_all("tr")  # rows of table
-    headers = rows[0].find_all("th")  # column names
-    headers = [str(h.text).strip() for h in headers]
-    if len(rows) > 1:
-        rows = rows[1:]  # discard header
-        for r in rows:
-            d = {}  # values of row
-            columns = r.find_all("td")
-            for i in range(len(headers)):
-                try:
-                    d[headers[i]] = str(columns[i].text).strip()
+    try:
+        rows = soup.find_all("table")[4].find_all("tr")  # rows of table
+        headers = rows[0].find_all("th")  # column names
+        headers = [str(h.text).strip() for h in headers]
+        if len(rows) > 1:
+            rows = rows[1:]  # discard header
+            for r in rows:
+                d = {}  # values of row
+                columns = r.find_all("td")
+                for i in range(len(headers)):
+                    try:
+                        d[headers[i]] = str(columns[i].text).strip()
+                    except:
+                        d[headers[i]] = VALUE_NOT_FOUND
+
+                try:  # try parse performance time and compute distance
+                    time_performance = datetime.strptime(d["Performance"], "%H:%M:%S h")
+                    time_hours = get_seconds(time_performance.strftime("%H:%M:%S")) / (60 * 60)  # hours of performance
+                    speed_performance = float(d["Avg.Speed km/h"])
+                    distance_performance = speed_performance * time_hours  # compute distance
+
+                    d["Performance"] = time_performance.strftime("%H:%M:%S")
+                    race_distance_km = "{0:.2f}".format(distance_performance)
                 except:
-                    d[headers[i]] = VALUE_NOT_FOUND
+                    pass
 
-            try:  # try parse performance time and compute distance
-                time_performance = datetime.strptime(d["Performance"], "%H:%M:%S h")
-                time_hours = get_seconds(time_performance.strftime("%H:%M:%S")) / (60 * 60)  # hours of performance
-                speed_performance = float(d["Avg.Speed km/h"])
-                distance_performance = speed_performance * time_hours  # compute distance
-
-                d["Performance"] = time_performance.strftime("%H:%M:%S")
-                race_distance_km = "{0:.2f}".format(distance_performance)
-            except:
-                pass
-
-            race_results.append(d)
+                race_results.append(d)
+    except:
+        pass
 
     rows = soup.find_all("table")[3].find_all("tr")  # rows with race details
     try:  # try parse race date
@@ -165,7 +184,7 @@ def get_runner_details(raw_html, url=None):
     return details
 
 
-def get_runner_results(raw_html):
+def get_runner_results(raw_html, base_url="http://statistik.d-u-v.org/"):
     """
     :param raw_html: str
         Raw HTML page with table with races list
@@ -215,7 +234,7 @@ def get_runner_results(raw_html):
                 race_details["name"] = VALUE_NOT_FOUND
 
             try:
-                race_details["url"] = BASE_URL + str(columns[1].a["href"])[2:-2]
+                race_details["url"] = base_url + str(columns[1].a["href"])[2:-2]
             except:
                 race_details["url"] = VALUE_NOT_FOUND
 
@@ -260,12 +279,14 @@ def get_details_of_runner_in_page(raw_html, url=None):
     return details, results
 
 
-def get_runner_details_as_dict(raw_html, url=None):
+def get_runner_details_as_dict(raw_html, url=None, log_file=None):
     """
     :param raw_html: str
         Raw HTML page with table with races list
     :param url: str
         Url of this page
+    :param log_file: str
+        Path to log file
     :return: {}
         Runner details as dict
     """
@@ -276,5 +297,6 @@ def get_runner_details_as_dict(raw_html, url=None):
         return details
     except:
         print("\t!!!\tErrors getting dict from url", str(url))
-        append_to_file(LOG_FILE, "Errors getting dict from url " + str(url))
+        if log_file is not None:
+            append_to_file(log_file, "Errors getting dict from url " + str(url))
         return None

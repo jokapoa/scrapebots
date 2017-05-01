@@ -16,7 +16,6 @@
 # limitations under the License.
 
 
-import argparse
 import asyncio
 import csv
 import json
@@ -26,9 +25,8 @@ import time
 import aiohttp
 from aiosocks.connector import ProxyConnector, ProxyClientRequest
 from hal.time.profile import print_time_eta, get_time_eta
-
-from .parsers import get_details_of_race_in_page
-from .utils import append_to_file, get_dicts_from_csv
+from parsers import get_details_of_race_in_page
+from utils import append_to_file
 
 VALUE_NOT_FOUND = str("DNF")
 BASE_URL = "http://statistik.d-u-v.org/"
@@ -37,41 +35,6 @@ WEBPAGE_COOKIES = {
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         str(os.path.basename(__file__)) + str(int(time.time())) + ".log")
-
-
-def create_args():
-    """
-    :return: ArgumentParser
-        Parser that handles cmd arguments.
-    """
-
-    parser = argparse.ArgumentParser(usage="-of <path to file with races urls>")
-    parser.add_argument("-f", dest="path_file", help="path to input file", required=True)
-    return parser
-
-
-def parse_args(parser):
-    """
-    :param parser: ArgumentParser
-        Object that holds cmd arguments.
-    :return: tuple
-        Values of arguments.
-    """
-
-    args = parser.parse_args()
-    return str(args.path_file)
-
-
-def check_args(path_file):
-    """
-    :param path_file: str
-        File to parse
-    :return: bool
-        True iff args are correct
-    """
-
-    assert os.path.exists(path_file)
-    return True
 
 
 def save_race_details_to_file(raw_html, out_dir, url=None):
@@ -94,11 +57,12 @@ def save_race_details_to_file(raw_html, out_dir, url=None):
             os.makedirs(race_out_dir)  # prepare output directory
 
         out_file = os.path.join(race_out_dir, "results.csv")  # output file for this race
-        keys = results[0].keys()
-        with open(out_file, "w") as output_file:  # write race results (standings)
-            dict_writer = csv.DictWriter(output_file, keys, quotechar="\"", delimiter=",")
-            dict_writer.writeheader()
-            dict_writer.writerows(results)
+        if len(results) > 1:
+            keys = results[0].keys()
+            with open(out_file, "w") as output_file:  # write race results (standings)
+                dict_writer = csv.DictWriter(output_file, keys, quotechar="\"", delimiter=",")
+                dict_writer.writeheader()
+                dict_writer.writerows(results)
 
         out_file_details = os.path.join(race_out_dir, "details.json")  # output file for details
         with open(out_file_details, "w") as o:  # write race details
@@ -107,42 +71,50 @@ def save_race_details_to_file(raw_html, out_dir, url=None):
         print("Output data written to", out_file)
     except Exception as e:
         print("\t!!!\tErrors parsing url", str(url))
+        print(str(e))
         append_to_file(LOG_FILE, "Errors parsing url " + str(url))
-        append_to_file(LOG_FILE, "\t" + str(e) + "\n")
 
 
-async def fetch(u):
-    try:
-        conn = ProxyConnector(remote_resolve=True)
-        async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest,
-                                         cookies=WEBPAGE_COOKIES) as session:
-            async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
-                body = await response.text()
-                raw_sources.append({
-                    "url": str(u),
-                    "html": str(body)
-                })  # add url and page source
+async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
+    """
+    :param u: str
+        Url to fetch
+    :param max_attempts: int
+        Max number of attempts to get page
+    :param time_delay_between_attempts: float
+        Number of seconds to wait between 2 consecutive attempts
+    :return: str
+        Body of page with url or null
+    """
 
-                if response.status != 200:
-                    print(response.status, u)
+    for _ in range(max_attempts):
+        try:
+            conn = ProxyConnector(remote_resolve=True)
+            async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest,
+                                             cookies=WEBPAGE_COOKIES) as session:
+                async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
+                    body = await response.text()
+                    raw_sources.append({
+                        "url": str(u),
+                        "html": str(body)
+                    })  # add url and page source
 
-                print_time_eta(
-                    get_time_eta(
-                        len(raw_sources),
-                        total,
-                        start_time
-                    )  # get ETA
-                )  # debug info
-                return body
-    except Exception as e:
-        print("\t!!!\tErrors fetching url", str(u))
-        append_to_file(LOG_FILE, "Errors fetching url " + str(u))
-        return ""
+                    print_time_eta(
+                        get_time_eta(
+                            len(raw_sources),
+                            total,
+                            start_time
+                        )  # get ETA
+                    )  # debug info
+                    return body
+        except:
+            time.sleep(time_delay_between_attempts)
+    return None
 
 
 async def bound_fetch(sem, url):
     async with sem:
-        await fetch(url)
+        await try_and_fetch(url, max_attempts=1, time_delay_between_attempts=0)
 
 
 async def fetch_urls(list_of_urls, max_concurrent=1000):
@@ -157,37 +129,38 @@ async def fetch_urls(list_of_urls, max_concurrent=1000):
 
 
 if __name__ == '__main__':
-    path_in = parse_args(create_args())
-    if check_args(path_in):
-        output_dir = os.path.join(os.path.dirname(path_in), "out-" + str(int(time.time())))  # output directory
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)  # prepare output directory
+    output_dir = "/home/stefano/Coding/Data/projects/galore/running/ultramarathon/races/statistik-races/races_details"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
-        races_list = get_dicts_from_csv(path_in)  # get list of races from input file
-        total = len(races_list)
-        raw_sources = []  # list of raw HTML pages to parse
-        pages_to_fetch = [r["url"] for r in races_list]  # urls of pages to fetch
+    pages_to_fetch = []  # [r["url"] for r in races_list]  # urls of pages to fetch
+    list_of_urls_file = "/home/stefano/Coding/Python/projects/scrapebots/statistik_ultramarathon/errors_races.log"
+    with open(list_of_urls_file, "r") as i:
+        lines = i.readlines()
+        lines = [str(l).strip() for l in lines]
+        pages_to_fetch = lines
+    raw_sources = []  # list of raw HTML pages to parse
 
-        print("Fetching HTML pages")
-        start_time = time.time()
-        loop = asyncio.get_event_loop()
-        future = asyncio.ensure_future(fetch_urls(pages_to_fetch))  # fetch sources
-        loop.run_until_complete(future)
-        loop.close()
+    print("Fetching HTML pages")
+    start_time = time.time()
+    loop = asyncio.get_event_loop()
+    future = asyncio.ensure_future(fetch_urls(pages_to_fetch))  # fetch sources
+    loop.run_until_complete(future)
+    loop.close()
 
-        print("Saving races results")
-        start_time = time.time()
-        saved_races = 0  # counter of how many races have been saved
-        for k in raw_sources:
-            page_source = k["html"]
-            save_race_details_to_file(page_source, output_dir, url=k["url"])
-            saved_races += 1
-            print_time_eta(
-                get_time_eta(
-                    saved_races,
-                    total,
-                    start_time
-                )  # get ETA
-            )  # debug info
-    else:
-        print("Error while parsing args.")
+    print("Saving races results")
+    start_time = time.time()
+    saved_races = 0  # counter of how many races have been saved
+    total = len(raw_sources)
+    for k in raw_sources:
+        page_source = k["html"]
+        save_race_details_to_file(page_source, output_dir, url=k["url"])
+
+        saved_races += 1
+        print_time_eta(
+            get_time_eta(
+                saved_races,
+                total,
+                start_time
+            )  # get ETA
+        )  # debug info
