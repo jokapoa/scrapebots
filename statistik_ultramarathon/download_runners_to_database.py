@@ -35,9 +35,9 @@ WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        "fetch_runners_database-" + str(int(time.time())) + ".log")  # path to log file
-MIN_RUNNER_PAGE = 450000  # (1) minimum page where to find runner
-MAX_RUNNER_PAGE = 600000  # (946958)  # maximum page where to find runner
+                        str(os.path.basename(__file__)).split(".")[0] + "-" + str(int(time.time())) + ".log")
+MIN_RUNNER_PAGE = 1  # minimum page where to find runner
+MAX_RUNNER_PAGE = 946959  # maximum page where to find runner
 
 DATABASE_NAME = "statistik-athletes"  # name of database to use
 COLLECTIONS_KEY = "birth_year"
@@ -116,9 +116,8 @@ async def fetch_urls(list_of_urls, max_concurrent=1000):
 
 if __name__ == "__main__":
     start_time_overall = time.time()
-
     urls_list = [get_url_of_page(p) for p in
-                 range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)]  # get list of urls
+                 range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)]  # get list of urls    
     total = len(urls_list)
     raw_sources = []  # list of raw HTML pages to parse
 
