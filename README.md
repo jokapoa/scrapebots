@@ -6,6 +6,9 @@
 )](https://landscape.io/github/sirfoga/scrapebots/master)
 [![Python version](https://img.shields.io/badge/Python-3.5-blue.svg
 )](https://www.python.org/download/releases/3.4.0/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+
+[![GitHub stars](https://img.shields.io/github/stars/sirfoga/scrapebots.svg?style=social&label=Star)](https://github.com/sirfoga/scrapebots) [![GitHub forks](https://img.shields.io/github/stars/sirfoga/scrapebots.svg?style=social&label=Fork)](https://github.com/sirfoga/scrapebots/fork) [![GitHub watchers](https://img.shields.io/github/stars/sirfoga/scrapebots.svg?style=social&label=Watch)](https://github.com/sirfoga/scrapebots) [![GitHub followers](https://img.shields.io/github/stars/sirfoga/scrapebots.svg?style=social&label=Follow)](https://github.com/sirfoga)
 
 
 ## Available bots
