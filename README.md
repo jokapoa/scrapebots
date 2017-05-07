@@ -3,7 +3,7 @@
 *Many Internet bots to scrape various web-platforms*
 
 [![Code Health](https://landscape.io/github/sirfoga/scrapebots/master/landscape.svg?style=flat
-)](https://landscape.io/github/sirfoga/scrapebots/master)
+)](https://landscape.io/github/sirfoga/scrapebots/master) [![Code Climate](https://lima.codeclimate.com/github/sirfoga/scrapebots/badges/gpa.svg)](https://codeclimate.com/github/sirfoga/scrapebots) 
 [![Python version](https://img.shields.io/badge/Python-3.5-blue.svg
 )](https://www.python.org/download/releases/3.4.0/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
