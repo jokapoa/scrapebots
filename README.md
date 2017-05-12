@@ -28,9 +28,10 @@
 | [ultra-marathon statisik](statistik_ultramarathon) | ultra-marathon performances | ~3 million |
 
 
-<!-- ## TODO bots -->
-<!-- | name | description | data size | -->
-<!-- | ------------- | ------------- | ------------- | -->
+## TODO bots
+| name | description | data size |
+| ------------- | ------------- | ------------- |
+| [ITA industries](it_ind/cli.py)  | scrape italian industries data | DNF |
 
 ## Install
 Usually just a few dependencies are needed:

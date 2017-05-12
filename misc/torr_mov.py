@@ -1,7 +1,7 @@
 import webbrowser
 
-u = "https://torrentz2.eu/search?f="
-f = "/home/stefano/Videos/movies.txt"
+u = "https://torrentz2.eu//verifiedP?f="
+f = "/home/stefano/tmp/m.txt"
 
 
 def get_torrentz_url(q):
