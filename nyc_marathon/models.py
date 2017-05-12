@@ -22,8 +22,8 @@ import time
 
 import pandas
 from bs4 import BeautifulSoup
+from hal.time.profile import get_time_eta, print_time_eta
 from selenium import webdriver
-from utils import get_time_eta, print_time_eta, print_debug_info
 
 VALUE_NOT_FOUND = str("DNF")
 TOTAL_RUNNERS_IN_ONE_EVENT = 50000
@@ -396,7 +396,7 @@ class NYCMarathonBot(object):
                     )
                 )  # debug info
             except Exception as e:
-                print_debug_info(["\n\t!!!!!!!!!!!!!!!!!!!!\n\t", str(e), "\n\t!!!!!!!!!!!!!!!!!!!!\n\t\n"])
+                print("\n\t!!!!!!!!!!!!!!!!!!!!\n\t", str(e), "\n\t!!!!!!!!!!!!!!!!!!!!\n\t\n")
                 keep_going = False
 
         self.browser.close()  # close browser
