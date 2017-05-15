@@ -259,58 +259,64 @@ class PagineGialleSearchBot(object):
                + str(query).strip().replace(" ", "%20") + "/" + str(address).strip()
 
     @staticmethod
-    def _get_name(li):
-        """Return the name of a google search."""
+    def get_name(d):
+        """ Return the name of a Pagine Gialle """
 
-        a = li.find_all("h2", {"class": "result__title"})[0].find_all("a", {"class": "result__a"})
-        if a is not None:
-            return a.text.strip()
-        return None
+        try:
+            data = d.find_all("div", {"class": "table"})[0].find_all("div", {"class": "elementRowL"})[0]  # table
+            data = data.find_all("div", {"class": "elementTop"})[0]  # title
+            data = data.find_all("span", {"class": "elementTitle"})[0]
+            return data.text.strip()
+        except:
+            return None
 
     @staticmethod
-    def _get_link(li):
+    def get_address(d):
         """Return external link from a search."""
 
-        a = li.find_all("h2", {"class": "result__title"})[0].find_all("a", {"class": "result__a"})
-        if len(a) > 0:
-            return a[0]["href"]
-        return None
+        try:
+            data = d.find_all("div", {"class": "table"})[0].find_all("div", {"class": "elementRowL"})[0]  # table
+            data = data.find_all("div", {"class": "elementBody"})[0]  # body
+            data = data.find_all("div", {"class": "elementAddress"})[0].find_all("div", {"itemprop": "address"})[0]
+            return data.text.strip()
+        except:
+            return None
 
     @staticmethod
-    def _get_description(li):
+    def get_phone(d):
         """Return the description of a google search.
         TODO: There are some text encoding problems to resolve."""
 
-        a = li.find_all("div", {"class": "result__snippet"})
-        if len(a) > 0:
-            return a[0].text.strip()
-        else:
+        try:
+            data = d.find_all("div", {"class": "table"})[0].find_all("div", {"class": "elementRowL"})[0]  # table
+            data = data.find_all("div", {"class": "elementBody"})[0]  # body
+            data = data.find_all("div", {"class": "elementPhoneCont"})[0].find_all("div", {"class": "elementPhone"})[0]
+            return data.text.strip()
+        except:
             return None
 
-    def parse_page_results(self, html, top=10):
+    @staticmethod
+    def parse_page_results(html):
         """
         :return: [] of {}
             Each dict is a result of the query browser has just made
         """
 
-        WebDriverWait(self.browser, self.BROWSER_WAIT_TIMEOUT_SECONDS).until(
-            EC.presence_of_element_located((By.ID, "links"))
-        )  # wait until fully loaded
         results = []
         soup = BeautifulSoup(html, "lxml")
-        divs = soup.find_all("div", {"id": "links"})[0].find_all("div", {"data-nir": "1"})[:top]
-        divs = [d.find_all("div", {"class": "result__body"})[0] for d in divs]
-        for d in divs:
-            name = self._get_name(d)
-            link = self._get_link(d)
-            description = self._get_description(d)
-            results.append(
-                {
-                    "name": name,
-                    "link": link,
-                    "description": description
-                }
-            )
+        results_div = soup.find_all("div", {"class": "listElementsInnerWrapper"})
+        if len(results_div) > 0:
+            results_div = results_div[0]
+            divs = results_div.find_all("div", {"class": "vcard"})
+            for d in divs:
+                results.append(
+                    {
+                        "name": PagineGialleSearchBot.get_name(d),
+                        "address": PagineGialleSearchBot.get_address(d),
+                        "phone": PagineGialleSearchBot.get_phone(d)
+                    }
+                )
+
         return results
 
     def get_search_results(self, query, address):
@@ -330,8 +336,7 @@ class PagineGialleSearchBot(object):
             WebDriverWait(self.browser, self.BROWSER_WAIT_TIMEOUT_SECONDS).until(
                 EC.presence_of_element_located((By.ID, "headSearchBar"))
             )  # wait until fully loaded
-            print("gotten!!!")
-            results = []
+            results = self.parse_page_results(self.browser.page_source)
         except:
             results = []
             print("Errors while searching for \"", query, "\"")

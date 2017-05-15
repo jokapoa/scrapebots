@@ -16,7 +16,7 @@
 # limitations under the License.
 
 
-from .search_engines import PagineGialleSearchBot
+from search_engines import PagineGialleSearchBot
 
 PATH_TO_CHROMEDRIVER = "/home/stefano/Coding/misc/chromedriver"
 
@@ -74,13 +74,17 @@ def main():
         ("HAIR GALLERY DI GROLLO SIMONETTA", "31036"),
         ("AGRICOLA SAN GIOVANNI - SOCIETA' SEMPLICE", "31050")
     ]
+    results_count = 0
     for q in queries:
-        results = bot.get_search_results(q[0], q[1])
-        results = results[:3]  # get only top results
-        print(q)
-        for r in results:
-            print(r)
-        print("\n")
+        results = bot.get_search_results(q[0].split("-")[0], q[1])
+        if len(results) > 0:
+            results_count += 1
+        # results = results[0]  # get only top result
+        # print(q)
+        # for r in results:
+        #     print(r)
+        # print("\n")
+        print(results_count, len(queries))
 
 
 if __name__ == '__main__':
