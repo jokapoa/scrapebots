@@ -68,11 +68,15 @@ def get_list_of_stages(raw_html, base_url="http://www.letour.fr"):
         List of stages urls and names
     """
 
-    soup = BeautifulSoup(str(raw_html), "lxml")  # HTML parser
-    table = soup.find_all("table", {"class": "liste"})[0]
-    rows = table.find_all("tr")[1:]  # discard header
-    urls = [r.find("td").a["href"] for r in rows]  # raw urls
-    return [str(base_url + u) for u in urls]  # add root urls
+    try:
+        soup = BeautifulSoup(str(raw_html), "lxml")  # HTML parser
+        table = soup.find_all("table", {"class": "liste"})[0]
+        rows = table.find_all("tr")[1:]  # discard header
+        urls = [r.find("td").a["href"] for r in rows]  # raw urls
+        return [str(base_url + u) for u in urls]  # add root urls
+    except Exception as e:
+        print(str(e))
+        return []
 
 
 def get_standings_of_stage(raw_html):
@@ -94,7 +98,6 @@ def get_standings_of_stage(raw_html):
         try:
             end_rows = rows.index(non_stage_rows[0])  # data rows ends at this index
             rows = rows[:end_rows]
-            winner_time = timedelta(days=1)  # time of winner (all races lasted < 1 day)
 
             for r in rows:
                 try:
@@ -110,9 +113,16 @@ def get_standings_of_stage(raw_html):
                                 minutes=athlete_time.minute,
                                 seconds=athlete_time.second
                             )
-                        except Exception as e:
-                            print(str(e))
-                            athlete_time = VALUE_NOT_FOUND
+                        except:
+                            try:
+                                athlete_time = datetime.strptime(athlete_time, '+ %Hh %M\' %S"')
+                                athlete_time = timedelta(
+                                    hours=athlete_time.hour,
+                                    minutes=athlete_time.minute,
+                                    seconds=athlete_time.second
+                                )
+                            except:
+                                athlete_time = VALUE_NOT_FOUND
                     else:  # this is the winner time
                         try:
                             athlete_time = datetime.strptime(athlete_time, '%Hh %M\' %S\"')
@@ -121,17 +131,22 @@ def get_standings_of_stage(raw_html):
                                 minutes=athlete_time.minute,
                                 seconds=athlete_time.second
                             )
-                            if athlete_time < winner_time:
-                                winner_time = athlete_time
-                        except Exception as e:
-                            print(str(e))
-                            athlete_time = VALUE_NOT_FOUND
+                        except:
+                            try:
+                                athlete_time = datetime.strptime(athlete_time, '%M\' %S"')
+                                athlete_time = timedelta(
+                                    hours=athlete_time.hour,
+                                    minutes=athlete_time.minute,
+                                    seconds=athlete_time.second
+                                )
+                            except:
+                                athlete_time = VALUE_NOT_FOUND
 
                     standings.append(
                         {
                             "position": columns[0],
                             "id": columns[1],
-                            "name": columns[2],
+                            "name": columns[2].title(),
                             "time": str(athlete_time)  # to string
                         }
                     )  # add to result list
@@ -141,5 +156,7 @@ def get_standings_of_stage(raw_html):
         except Exception as e:
             print(str(e))  # parse all rows
             pass
+
+        return standings
     else:  # this is not the stage standings
         return []

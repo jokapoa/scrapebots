@@ -32,11 +32,11 @@ from pymongo import MongoClient
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         str(os.path.basename(__file__)).split(".")[0] + "-" + str(int(time.time())) + ".log")
 MIN_YEAR_PAGE = 1903  # minimum year of tour
-MAX_YEAR_PAGE = 1905  # 2016  # maximum year of tour
+MAX_YEAR_PAGE = 2016  # maximum year of tour
 
 DATABASE_NAME = "letour-stages"  # name of mongodb database to use
 mongodb_client = MongoClient()  # mongodb client
-# mongodb_client.drop_database(DATABASE_NAME)  # remove all previous data in database
+mongodb_client.drop_database(DATABASE_NAME)  # remove all previous data in database
 db = mongodb_client[DATABASE_NAME]  # database to use (will have a coll for each year, each coll will have stages list)
 for c in db.collection_names():
     db[c].create_index("num", unique=True)  # set primary key
@@ -59,7 +59,7 @@ async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
             conn = ProxyConnector(remote_resolve=True)
             async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest) as session:
                 async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:  # use tor
-                    body = await response.text()
+                    body = await response.text(encoding='latin-1')
                     raw_sources.append({
                         "url": str(u),
                         "html": str(body)
@@ -76,6 +76,8 @@ async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
                     return body
         except Exception as e:
             time.sleep(time_delay_between_attempts)
+            import traceback
+            traceback.print_exc()
             print("Cannot get url " + str(u))
             print(str(e))
     return None
