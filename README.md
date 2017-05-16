@@ -26,12 +26,12 @@
 | [NYC Marathon](nyc_marathon/fetch_details.py) | download full marathon results (since 1970)  | ~1 million |
 | [connemarathon](conne_marathon/bot.py) | connemarathon (since 2002)  | ~30000 |
 | [ultra-marathon statisik](statistik_ultramarathon) | ultra-marathon performances | ~3 million |
-
+| [ITA industries](ita_industries/cli.py)  | italian industries data | DNF |
 
 ## TODO bots
 | name | description | data size |
 | ------------- | ------------- | ------------- |
-| [ITA industries](it_ind/cli.py)  | scrape italian industries data | DNF |
+| [Tour De France](letour/cli.py)  | results of Tour de France since 1903 | ~200000 |
 
 ## Install
 Usually just a few dependencies are needed:

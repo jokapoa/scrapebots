@@ -26,37 +26,20 @@ import aiohttp
 from aiosocks.connector import ProxyConnector, ProxyClientRequest
 from hal.profile.mem import get_memory_usage, force_garbage_collect
 from hal.time.profile import print_time_eta, get_time_eta
-from parsers import get_runner_details_as_dict
+from parsers import get_url_of_page, get_list_of_stages, get_standings_of_stage, get_stage_details_from_url
 from pymongo import MongoClient
-from utils import append_to_file
 
-BASE_URL = "http://statistik.d-u-v.org/"  # url of web-page
-WEBPAGE_COOKIES = {
-    "Language": "EN"
-}  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         str(os.path.basename(__file__)).split(".")[0] + "-" + str(int(time.time())) + ".log")
-MIN_RUNNER_PAGE = 1  # minimum page where to find runner
-MAX_RUNNER_PAGE = 946959  # maximum page where to find runner
+MIN_YEAR_PAGE = 1903  # minimum year of tour
+MAX_YEAR_PAGE = 1905  # 2016  # maximum year of tour
 
-DATABASE_NAME = "statistik-athletes"  # name of mongodb database to use
-COLLECTIONS_KEY = "birth_year"  # key to divide athletes in each collections
+DATABASE_NAME = "letour-stages"  # name of mongodb database to use
 mongodb_client = MongoClient()  # mongodb client
 # mongodb_client.drop_database(DATABASE_NAME)  # remove all previous data in database
-db = mongodb_client[DATABASE_NAME]  # database to use
+db = mongodb_client[DATABASE_NAME]  # database to use (will have a coll for each year, each coll will have stages list)
 for c in db.collection_names():
-    db[c].create_index("url", unique=True)  # set primary key
-
-
-def get_url_of_page(p):
-    """
-    :param p: int
-        Number of page to fetch
-    :return: str
-        Url of selected page
-    """
-
-    return BASE_URL + "getresultperson.php?runner=" + str(p)
+    db[c].create_index("num", unique=True)  # set primary key
 
 
 async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
@@ -74,9 +57,8 @@ async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
     for _ in range(max_attempts):
         try:
             conn = ProxyConnector(remote_resolve=True)
-            async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest,
-                                             cookies=WEBPAGE_COOKIES) as session:
-                async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
+            async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest) as session:
+                async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:  # use tor
                     body = await response.text()
                     raw_sources.append({
                         "url": str(u),
@@ -92,9 +74,10 @@ async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
                         note="Got HTML"
                     )  # debug info
                     return body
-        except:
+        except Exception as e:
             time.sleep(time_delay_between_attempts)
-            append_to_file(LOG_FILE, "Cannot get url " + str(u))
+            print("Cannot get url " + str(u))
+            print(str(e))
     return None
 
 
@@ -103,7 +86,7 @@ async def bound_fetch(sem, url):
         await try_and_fetch(url, max_attempts=1, time_delay_between_attempts=0)
 
 
-async def fetch_urls(list_of_urls, max_concurrent=1000):
+async def fetch_urls(list_of_urls, max_concurrent=200):
     tasks = []
     sem = asyncio.Semaphore(max_concurrent)
     for u in list_of_urls:
@@ -116,39 +99,68 @@ async def fetch_urls(list_of_urls, max_concurrent=1000):
 
 if __name__ == "__main__":
     start_time_overall = time.time()
-    urls_list = [get_url_of_page(p) for p in
-                 range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)]  # get list of urls    
+
+    print("\t0 - Getting URLs list")
+    urls_list = [get_url_of_page(y) for y in
+                 range(MIN_YEAR_PAGE, MAX_YEAR_PAGE + 1)]  # get list of urls
     total = len(urls_list)
     raw_sources = []  # list of raw HTML pages to parse
 
-    print("\tFetching HTML pages")
+    print("\t1 - Downloading years pages")
+    start_time = time.time()
+    loop = asyncio.get_event_loop()
+    future = asyncio.ensure_future(fetch_urls(urls_list))  # fetch sources
+    loop.run_until_complete(future)
+
+    print("\t2 - Getting list of all stages")
+    start_time = time.time()
+    urls_list = []
+    total = len(raw_sources)
+    for i in range(len(raw_sources)):
+        urls_list += get_list_of_stages(
+            raw_sources[i]["html"]
+        )  # get list of stages in page
+        print_time_eta(
+            get_time_eta(
+                i + 1,
+                total,
+                start_time
+            ),  # get ETA
+            note="Got stage list"
+        )  # debug info
+
+    print("\t3 - Downloading stages pages")
+    raw_sources = []  # list of raw HTML pages to parse
+    total = len(urls_list)
+
     start_time = time.time()
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(fetch_urls(urls_list))  # fetch sources
     loop.run_until_complete(future)
     loop.close()
 
-    print("\tGarbage-collecting useless stuff")
-    urls_list = None  # free memory
+    print("\t4 - Garbage-collecting useless stuff")
+    urls_list = None
     force_garbage_collect()
-    total = len(raw_sources)
 
-    print("\tParsing HTML pages")
+    print("\t5- Parsing stages pages")
+    total = len(raw_sources)
     start_time = time.time()
     for i in range(len(raw_sources)):
-        d = get_runner_details_as_dict(
-            raw_sources[i]["html"],
-            url=raw_sources[i]["url"],
-            log_file=LOG_FILE
-        )  # get details
+        stage_standings = get_standings_of_stage(
+            raw_sources[i]["html"]
+        )
+        stage_details = get_stage_details_from_url(raw_sources[i]["url"])
+        d = {
+            "num": stage_details["id"],
+            "standings": stage_standings
+        }
 
-        if d is not None:
-            try:
-                db[str(d[COLLECTIONS_KEY])].insert_one(d)
-                raw_sources[i] = None  # release memory
-            except Exception as e:
-                if "duplicate key error" not in str(e):
-                    append_to_file(LOG_FILE, str(e))
+        try:
+            db[str(stage_details["year"])].insert_one(d)
+            raw_sources[i] = None  # release memory
+        except Exception as e:
+            print(str(e))
 
         print_time_eta(
             get_time_eta(
@@ -166,7 +178,7 @@ if __name__ == "__main__":
     delta_mem_overall = get_memory_usage()
 
     print(
-        "Done fetching and saving data to mongodb database \"" + str(DATABASE_NAME) + "\". Job started at",
+        "Done downloading and saving data to mongodb database \"" + str(DATABASE_NAME) + "\". Job started at",
         datetime.fromtimestamp(start_time_overall).strftime("%Y-%m-%d %H:%M:%S"), "completed at",
         datetime.fromtimestamp(end_time_overall).strftime("%Y-%m-%d %H:%M:%S"), ", took",
         str(timedelta(seconds=int(delta_time_overall))), "and ~", str(delta_mem_overall), "MB to complete."

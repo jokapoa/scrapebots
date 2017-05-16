@@ -1,10 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 0.1.5 - 2017-05-16
+
+### Added
+- Tour de France scraper
+
 ## 0.1.4 - 2017-05-12
 
 ### Added
 - GoogleSearchBot in ita industries project
+- Pagine Gialle Bot in ita industries project
 
 ## 0.1.3 - 2017-04-27
 
