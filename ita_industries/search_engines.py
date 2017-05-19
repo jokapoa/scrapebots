@@ -224,8 +224,6 @@ class DuckDuckGoSearchBot(object):
         except:
             results = []
             print("Errors while searching for \"", query, "\"")
-            import traceback
-            traceback.print_exc()
 
         return results
 

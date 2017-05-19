@@ -26,8 +26,9 @@ import aiohttp
 from aiosocks.connector import ProxyConnector, ProxyClientRequest
 from hal.profile.mem import get_memory_usage, force_garbage_collect
 from hal.time.profile import print_time_eta, get_time_eta
-from parsers import get_url_of_page, get_list_of_stages, get_standings_of_stage, get_stage_details_from_url
 from pymongo import MongoClient
+
+from .parsers import get_url_of_page, get_list_of_stages, get_standings_of_stage, get_stage_details_from_url
 
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                         str(os.path.basename(__file__)).split(".")[0] + "-" + str(int(time.time())) + ".log")
@@ -36,7 +37,7 @@ MAX_YEAR_PAGE = 2016  # maximum year of tour
 
 DATABASE_NAME = "letour-stages"  # name of mongodb database to use
 mongodb_client = MongoClient()  # mongodb client
-mongodb_client.drop_database(DATABASE_NAME)  # remove all previous data in database
+# mongodb_client.drop_database(DATABASE_NAME)  # remove all previous data in database
 db = mongodb_client[DATABASE_NAME]  # database to use (will have a coll for each year, each coll will have stages list)
 for c in db.collection_names():
     db[c].create_index("num", unique=True)  # set primary key

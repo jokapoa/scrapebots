@@ -16,21 +16,28 @@
 # limitations under the License.
 
 
-""" Main driver of bot """
+""" Parse, fix and save data """
 
-from .args_utils import create_args, parse_args, check_args
-from .data_utils import get_data_from_csv, get_list_queries
-from .search_utils import search_query
+import pandas as pd
 
 
-def main():
-    path_in, path_out = parse_args(create_args())
-    if check_args(path_in, path_out):
-        queries = get_list_queries(get_data_from_csv(path_in))  # get input data
-        search_results = []  # output of queries
-        for q in queries:
-            r = search_query(q)  # search results
+def get_list_queries(df):
+    """
+    :param df:pandas.DataFrame
+        Content of .csv file
+    :return: [] of {}
+        List of queries with attributes in input data
+    """
+
+    return list(df.T.to_dict().values())  # to list
 
 
-if __name__ == '__main__':
-    main()
+def get_data_from_csv(path_in):
+    """
+    :param path_in:str
+        File to use as input
+    :return: pandas.DataFrame
+        Content of .csv file
+    """
+
+    return pd.read_csv(path_in)
