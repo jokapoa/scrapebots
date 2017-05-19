@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 ### Refactored
 - ita industries data scraper
 
+### Added
+- ita industries data scraper: utils
+- rotten tomatoes in README
+
 ## 0.1.5 - 2017-05-16
 
 ### Added
