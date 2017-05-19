@@ -19,7 +19,7 @@
 """ Main driver of bot """
 
 from .args_utils import create_args, parse_args, check_args
-from .data_utils import get_data_from_csv, get_list_queries
+from .data_utils import get_data_from_csv, get_list_queries, save_dicts_to_csv
 from .search_utils import search_query
 
 
@@ -29,8 +29,13 @@ def main():
         queries = get_list_queries(get_data_from_csv(path_in))  # get input data
         search_results = []  # output of queries
         for q in queries:
-            r = search_query(q)  # search results
+            r = search_query(q)  # search result
+            r["name"] = q["DENOMINAZIONE"]  # add field
+            r["email"] = ",".join([str(x) for x in r["email"]])  # to list of string
+            r["telephone"] = ",".join([str(x) for x in r["telephone"]])  # to list of string
 
+            search_results.append(r)  # add to results
+        save_dicts_to_csv(search_results, path_out)  # save to output
 
 if __name__ == '__main__':
     main()

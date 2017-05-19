@@ -34,10 +34,28 @@ def get_list_queries(df):
 
 def get_data_from_csv(path_in):
     """
-    :param path_in:str
+    :param path_in: str
         File to use as input
     :return: pandas.DataFrame
         Content of .csv file
     """
 
     return pd.read_csv(path_in)
+
+
+def save_dicts_to_csv(dicts, path_out):
+    """
+    :param dicts: List of dicts
+        Content to save
+    :param path_out: str
+        File to use as output
+    :return: void
+        Saves data to .csv file
+    """
+
+    df = pd.DataFrame(dicts)
+    df.to_csv(
+        path_out,
+        sep=",",
+        quotechar="\""
+    )  # save to output file

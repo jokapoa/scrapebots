@@ -20,6 +20,7 @@
 
 import argparse
 import os
+import time
 
 
 def create_args():
@@ -43,7 +44,12 @@ def parse_args(parser):
     """
 
     args = parser.parse_args()
-    return str(args.path_in), str(args.path_out)
+
+    path_out = os.path.join(
+        str(args.path_out),
+        "output-" + str(int(time.time())) + ".csv"
+    )
+    return str(args.path_in), path_out
 
 
 def check_args(path_in, path_out):
