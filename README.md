@@ -21,6 +21,7 @@
 | [Github](github/tester.py)  | use API token to get info about users, repos | DNF |
 | [Google Images](misc/google_image.py) | download images  | DNF |
 | [Hackerrank](misc/hackerrank.py) | download problems statements and solutions | DNF |
+| [IMDB](imdb) | scrape largets dataset of movies | DNF |
 | [ITA industries](ita_industries/cli.py)  | italian industries data | DNF |
 | [London Marathon](london_marathon/fetch_details_urls.py)  | download marathon results (since 2014)  | ~175000 |
 | [NYC Marathon](nyc_marathon/fetch_details.py) | download full marathon results (since 1970)  | ~1 million |

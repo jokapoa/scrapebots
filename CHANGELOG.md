@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 0.1.7 - 2017-05-23
+
+### Added
+- imdb list data scraper
+
+### Fixed
+- minor improvements in ita industries data scraper
+
 ## 0.1.6 - 2017-05-19
 
 ### Refactored
