@@ -57,5 +57,6 @@ def save_dicts_to_csv(dicts, path_out):
     df.to_csv(
         path_out,
         sep=",",
-        quotechar="\""
+        quotechar="\"",
+        index=False
     )  # save to output file

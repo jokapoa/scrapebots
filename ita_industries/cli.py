@@ -18,15 +18,15 @@
 
 """ Main driver of bot """
 
-from .args_utils import create_args, parse_args, check_args
-from .data_utils import get_data_from_csv, get_list_queries, save_dicts_to_csv
-from .search_utils import search_query
+from args_utils import create_args, parse_args, check_args
+from data_utils import get_data_from_csv, get_list_queries, save_dicts_to_csv
+from search_utils import search_query
 
 
 def main():
     path_in, path_out = parse_args(create_args())
     if check_args(path_in, path_out):
-        queries = get_list_queries(get_data_from_csv(path_in))  # get input data
+        queries = get_list_queries(get_data_from_csv(path_in))[:20]  # get input data
         search_results = []  # output of queries
         for q in queries:
             r = search_query(q)  # search result

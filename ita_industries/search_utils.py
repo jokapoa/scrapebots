@@ -30,7 +30,7 @@ def search_telephone_number(query):
         List of possible telephone numbers of query found on the Internet
     """
 
-    if len(query["TELEFONO"]) > 4:  # already has telephone
+    if len(str(query["TELEFONO"])) > 4:  # already has telephone
         return [str(query["TELEFONO"]).strip()]
 
     return []  # TODO

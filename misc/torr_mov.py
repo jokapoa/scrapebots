@@ -1,7 +1,11 @@
+import os
 import webbrowser
 
 u = "https://torrentz2.eu//verifiedP?f="
-f = "/home/stefano/tmp/m.txt"
+f = os.path.join(
+    os.getenv("HOME"),
+    "tmp/m.txt"
+)
 
 
 def get_torrentz_url(q):
