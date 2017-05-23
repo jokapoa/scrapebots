@@ -311,7 +311,7 @@ class PagineGialleSearchBot(object):
                     {
                         "name": PagineGialleSearchBot.get_name(d),
                         "address": PagineGialleSearchBot.get_address(d),
-                        "phone": PagineGialleSearchBot.get_phone(d)
+                        "telephone": PagineGialleSearchBot.get_phone(d)
                     }
                 )
 
@@ -338,7 +338,5 @@ class PagineGialleSearchBot(object):
         except:
             results = []
             print("Errors while searching for \"", query, "\"")
-            import traceback
-            traceback.print_exc()
 
         return results

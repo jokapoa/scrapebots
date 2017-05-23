@@ -18,8 +18,51 @@
 
 """ Search queries from various search engines in Internet """
 
+from search_engines import PagineGialleSearchBot
+
 PATH_TO_CHROMEDRIVER = "/home/stefano/Coding/misc/chromedriver"  # path to web-driver to use with selenium
 VALUE_NOT_FOUND = "DNF"  # value to use when data error or not found
+VALUE_NULL = ""  # value to use when data is null
+BOT = PagineGialleSearchBot(PATH_TO_CHROMEDRIVER)
+
+
+def parse_address(query):
+    """
+    :param query: str
+        Query
+    :return: str
+        Address of industry in query
+    """
+
+    try:
+        if len(str(query["CAP"])) > 3:
+            return str(int(query["CAP"]))[0].strip()
+        elif len(str(query["CITTA"]).strip()) > 1:
+            return str(query["CITTA"])
+        elif len(str(query["VIA"]).strip()) > 1:
+            return str(query["VIA"])
+        else:
+            return VALUE_NULL
+    except:
+        return VALUE_NULL
+
+
+def parse_name(query):
+    """
+    :param query: str
+        Query
+    :return: str
+        Address of industry in query
+    """
+
+    try:
+        name_tokens = str(query["DENOMINAZIONE"]).lower().strip().split(" ")
+        if len(name_tokens) >= 8:
+            return " ".join(name_tokens[2:])
+        else:
+            return " ".join(name_tokens)
+    except:
+        return VALUE_NULL
 
 
 def search_telephone_number(query):
@@ -33,7 +76,20 @@ def search_telephone_number(query):
     if len(str(query["TELEFONO"])) > 4:  # already has telephone
         return [str(query["TELEFONO"]).strip()]
 
-    return []  # TODO
+    try:
+        address = parse_address(query)
+        ind_name = parse_name(query)
+        print("Searching", ind_name, "in", address)
+
+        search_results = BOT.get_search_results(
+            ind_name,
+            address
+        )[:3]  # get only top 3 results
+        return [
+            s["telephone"] for s in search_results
+            ]  # get all telephones
+    except:
+        return [VALUE_NOT_FOUND]
 
 
 def search_email(query):
@@ -44,7 +100,7 @@ def search_email(query):
         List of possible telephone emails of query found on the Internet
     """
 
-    return []  # TODO
+    return [VALUE_NOT_FOUND]  # TODO
 
 
 def search_query(query):
