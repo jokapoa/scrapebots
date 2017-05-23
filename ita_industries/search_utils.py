@@ -57,12 +57,15 @@ def parse_name(query):
 
     try:
         name_tokens = str(query["DENOMINAZIONE"]).lower().strip().split(" ")
+        while name_tokens[0].strip()[0].isdigit():  # remove digits
+            name_tokens = name_tokens[1:]
+
         if len(name_tokens) >= 8:
             return " ".join(name_tokens[2:])
         else:
             return " ".join(name_tokens)
     except:
-        return VALUE_NULL
+        return str(query["DENOMINAZIONE"])
 
 
 def search_telephone_number(query):
