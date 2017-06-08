@@ -101,13 +101,15 @@ class GithubApi(GithubRawApi):
         super(GithubApi, self).__init__(GithubApi._API_URL_TYPE[api_type])
 
     @staticmethod
-    def get_trending_daily():
+    def get_trending_daily(lang=""):
         """
+        :param lang: str
+            Coding language
         :return: []
             List of GithubUserRepository
         """
 
-        url = "https://github.com/trending?since=daily"
+        url = "https://github.com/trending/" + str(lang).lower().replace(" ", "") + "?since=daily"
         api_content_request = urllib.request.Request(url)
         api_content_response = urllib.request.urlopen(api_content_request).read().decode("utf-8")  # parse response
         soup = BeautifulSoup(api_content_response, "lxml")  # html parser
@@ -172,12 +174,20 @@ class GithubUser(GithubApi):
             current_page += 1  # increase page counter
         return repos_list
 
-    def get_trending_daily_not_starred(self):
-        trending_daily = self.get_trending_daily()  # list of repos trending daily
-        starred_repos = self.get_starred_repos()  # list of repos starred by user
+    def get_trending_daily_except(self, avoid=[], lang=""):
+        """
+        :param lang: str
+            Coding language
+        :param avoid: list
+            List of repo to avoid including in final output
+        :return: []
+            List of GithubUserRepository trending daily that are not starred by user
+        """
+
+        trending_daily = self.get_trending_daily(lang=lang)  # list of repos trending daily
         repos_list = []
         for r in trending_daily:
-            if r not in starred_repos:
+            if r not in avoid:
                 repos_list.append(r)
         return repos_list
 

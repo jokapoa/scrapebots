@@ -61,25 +61,36 @@ def print_trending_daily_repos():
     print_repo_details(repos)
 
 
-def print_trending_daily_not_starred_repos(username):
+def show_trends_for_user(user, langs, include_already_starred=True):
     """
-    :param username: str
+    :param user: str
         Username of Github user
+    :param langs: list
+        List of languages to get trends for
+    :param include_already_starred: bool
+        True iff want to print out also already starred repositories
     :return: void
-        Fetches list of trending daily repos and not starred by user and prints details to stdout
+        Prints trending repositories of user
     """
 
-    user = GithubUser(username)
-    repos = user.get_trending_daily_not_starred()
-    print("Found", str(len(repos)), "repositories")
-    print_repo_details(repos)
+    u = GithubUser(user)
+    stars = []
+
+    if not include_already_starred:
+        print("Fetching", user + "'s stars")
+        stars = u.get_starred_repos()
+
+    for l in langs:
+        print("Fetching trending", l.title(), "repositories for", user)
+        trends = u.get_trending_daily_except(avoid=stars, lang=l)
+        print("Found", str(len(trends)), "repositories")
+        print_repo_details(trends)
+        print()
 
 
-def main():
-    print_user_repos("sirfoga")
-    # print_trending_daily_repos()
-    # print_trending_daily_not_starred_repos("sirfoga")
-
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    show_trends_for_user(
+        "sirfoga",
+        ["", "python", "c", "c++", "java", "haskell", "go", "ruby", "mathematica", "matlab", "tex"],
+        include_already_starred=False
+    )  # example of usage
