@@ -20,17 +20,17 @@ from colorama import init, Fore, Style
 from models import GithubUser
 
 code_lang_colors = {
-    "": Fore.WHITE,
-    "python": Fore.CYAN,
-    "c": Fore.LIGHTBLUE_EX,
-    "c++": Fore.YELLOW,
-    "java": Fore.RED,
-    "haskell": Fore.GREEN,
-    "go": Fore.BLUE,
-    "ruby": Fore.RED,
-    "mathematica": Fore.RED,
-    "matlab": Fore.MAGENTA,
-    "tex": Fore.GREEN
+    "": Fore.WHITE + Style.BRIGHT,
+    "python": Fore.CYAN + Style.BRIGHT,
+    "c": Fore.LIGHTBLUE_EX + Style.BRIGHT,
+    "c++": Fore.YELLOW + Style.BRIGHT,
+    "java": Fore.RED + Style.BRIGHT,
+    "haskell": Fore.GREEN + Style.BRIGHT,
+    "go": Fore.BLUE + Style.BRIGHT,
+    "ruby": Fore.RED + Style.BRIGHT,
+    "mathematica": Fore.RED + Style.BRIGHT,
+    "matlab": Fore.MAGENTA + Style.BRIGHT,
+    "tex": Fore.GREEN + Style.BRIGHT
 }
 
 
@@ -80,7 +80,7 @@ def show_trends_for_user(user, langs, include_already_starred=True):
     for l in langs:
         print("Fetching trending", l.title(), "repositories for", user)
         trends = u.get_trending_daily_except(avoid=stars, lang=l)
-        print("Found", str(len(trends)), "repositories:", end="\n")
+        print("Found", str(len(trends)), "repositories:\n")
         print_repos_details(trends, lang=l)
 
 
