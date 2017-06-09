@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 - lang option in Github.get_starred_repos
 - sample scripts to printout github daily trends
 
+### Fixed
+- dmca error handling in GithubApi
+
 ## 0.1.7 - 2017-05-23
 
 ### Added

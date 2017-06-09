@@ -62,8 +62,7 @@ class GithubRawApi(object):
 
         try:
             return self.api_content[key]
-        except Exception as e:
-            print(str(e))
+        except:
             return None
 
     def _get_api_content(self):
@@ -73,10 +72,13 @@ class GithubRawApi(object):
         """
 
         api_content_request = urllib.request.Request(self.api_url)
-        api_content_request.add_header("Authorization", "token %s" % API_TOKEN)
-        api_content_request.add_header("User-Agent", "Github PyAPI")
-        api_content_response = urllib.request.urlopen(api_content_request).read()
-        self.api_content = json.loads(api_content_response.decode("utf-8"))  # parse response
+        try:
+            api_content_request.add_header("Authorization", "token %s" % API_TOKEN)
+            api_content_request.add_header("User-Agent", "Github PyAPI")
+            api_content_response = urllib.request.urlopen(api_content_request).read()
+            self.api_content = json.loads(api_content_response.decode("utf-8"))  # parse response
+        except Exception as e:
+            return None
 
 
 class GithubApi(GithubRawApi):

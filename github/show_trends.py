@@ -83,14 +83,12 @@ def show_trends_for_user(user, langs, include_already_starred=True):
     for l in langs:
         print("Fetching trending", l.title(), "repositories for", user)
         trends = u.get_trending_daily_except(avoid=stars, lang=l)
-        print("Found", str(len(trends)), "repositories")
+        print("Found", str(len(trends)), "repositories:", end="\n")
         print_repo_details(trends)
-        print()
 
 
 if __name__ == '__main__':
     show_trends_for_user(
         "sirfoga",
-        ["", "python", "c", "c++", "java", "haskell", "go", "ruby", "mathematica", "matlab", "tex"],
-        include_already_starred=False
+        ["", "python", "c", "c++", "java", "haskell", "go", "ruby", "mathematica", "matlab", "tex"]
     )  # example of usage
