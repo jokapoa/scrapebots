@@ -16,49 +16,46 @@
 # limitations under the License.
 
 
-from models import GithubUser, GithubApi
+from colorama import init, Fore, Style
+from models import GithubUser
+
+code_lang_colors = {
+    "": Fore.WHITE,
+    "python": Fore.CYAN,
+    "c": Fore.LIGHTBLUE_EX,
+    "c++": Fore.YELLOW,
+    "java": Fore.RED,
+    "haskell": Fore.GREEN,
+    "go": Fore.BLUE,
+    "ruby": Fore.RED,
+    "mathematica": Fore.RED,
+    "matlab": Fore.MAGENTA,
+    "tex": Fore.GREEN
+}
 
 
-def print_repo_details(repos_list):
+def print_repos_details(repos_list, lang=""):
     """
     :param repos_list: [] of GithubUserRepo
         List of repos to print to stdout
+    :param lang: str
+        Coding language (only for prettify purposes)
     :return: void
         Prints details to stdout
     """
 
+    init(autoreset=True)  # colorful output
+    lang_color = code_lang_colors[lang] if lang in code_lang_colors else ""  # color output for this language
+    url_color = Fore.BLUE + Style.BRIGHT
+
     for r in repos_list:
-        print(r["name"], str(r["language"]))
-        print(r["description"])
-        print(str(r["stargazers_count"]), "***", " ", str(r["forks_count"]), "|-", " ", str(r["subscribers_count"]),
-              "-.-")
-        print("Created", str(r["created_at"]), " ", "Last update", str(r["pushed_at"]))
-        print(r["html_url"], "\n")
-
-
-def print_user_repos(username):
-    """
-    :param username: str
-        Username of Github user
-    :return: void
-        Fetches list of user repos and prints details to stdout
-    """
-
-    user = GithubUser(username)
-    repos = user.get_repos()
-    print("Found", str(len(repos)), "repositories")
-    print_repo_details(repos)
-
-
-def print_trending_daily_repos():
-    """
-    :return: void
-        Fetches list of daily trending repos and prints details to stdout
-    """
-
-    repos = GithubApi.get_trending_daily()
-    print("Found", str(len(repos)), "repositories")
-    print_repo_details(repos)
+        if not (r["name"] is None and r["description"] is None):  # valid repository
+            print(lang_color + str(r["name"]) + " " + str(r["language"]))
+            print(str(r["description"]))
+            print(str(r["stargazers_count"]), "***", " ", str(r["forks_count"]), "|-", " ", str(r["subscribers_count"]),
+                  "-.-")
+            print("Created", str(r["created_at"]), " ", "Last update", str(r["pushed_at"]))
+            print(url_color + str(r["html_url"]), "\n")
 
 
 def show_trends_for_user(user, langs, include_already_starred=True):
@@ -84,7 +81,7 @@ def show_trends_for_user(user, langs, include_already_starred=True):
         print("Fetching trending", l.title(), "repositories for", user)
         trends = u.get_trending_daily_except(avoid=stars, lang=l)
         print("Found", str(len(trends)), "repositories:", end="\n")
-        print_repo_details(trends)
+        print_repos_details(trends, lang=l)
 
 
 if __name__ == '__main__':

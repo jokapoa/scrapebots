@@ -178,10 +178,10 @@ class GithubUser(GithubApi):
 
     def get_trending_daily_except(self, avoid=[], lang=""):
         """
-        :param lang: str
-            Coding language
         :param avoid: list
             List of repo to avoid including in final output
+        :param lang: str
+            Coding language
         :return: []
             List of GithubUserRepository trending daily that are not starred by user
         """
