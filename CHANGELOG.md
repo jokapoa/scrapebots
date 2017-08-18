@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 0.1.9 - 2017-08-18
+
+### Refactored
+- all bots now in `bots` module
+
 ## 0.1.8 - 2017-06-08
 
 ### Added

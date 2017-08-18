@@ -11,27 +11,28 @@
 ## Available bots
 | name | description | data size |
 | ------------- | ------------- | ------------- |
-| [andreadd.it](misc/andreadd.py) | download [Polimi](http://www.polimi.it/en/) books and notes  | ~1GB |
-| [Amazon](amazon/amazon_items_scraper.py)  | parse items in classic Amazon page  | DNF |
-| [connemarathon](conne_marathon/bot.py) | connemarathon (since 2002)  | ~30000 |
-| [FSG media downloader](misc/fsgmedia-downloader.py) | download pictures from (Samsung) FSG servers | ~4TB |
-| [Github](github/tester.py)  | use API token to get info about users, repos | DNF |
-| [Google Images](misc/google_image.py) | download images  | DNF |
-| [Hackerrank](misc/hackerrank.py) | download problems statements and solutions | DNF |
-| [IMDB](imdb) | scrape largets dataset of movies | DNF |
-| [ITA industries](ita_industries/cli.py)  | italian industries data | DNF |
-| [London Marathon](london_marathon/fetch_details_urls.py)  | download marathon results (since 2014)  | ~175000 |
-| [NYC Marathon](nyc_marathon/fetch_details.py) | download full marathon results (since 1970)  | ~1 million |
-| [Rotten Tomaroes](rottentomatoes/cli.py) | browse [Rotten Tomatoes](https://www.rottentomatoes.com/) database | DNF |
-| [Torrent](misc/torrent_downloader.py) | download .torrent files | DNF |
-| [Torrentz](misc/torr_mov.py) | open Torrentz queries | DNF |
-| [Tour De France](letour/cli.py)  | results of Tour de France since 1903 | ~160000 |
-| [ultra-marathon statisik](statistik_ultramarathon) | ultra-marathon performances | ~3 million |
+| [andreadd.it](bots/misc/andreadd.py) | download [Polimi](http://www.polimi.it/en/) books and notes | ~1GB |
+| [Amazon](bots/amazon/amazon_items_scraper.py)  | parse items in classic Amazon page | DNF |
+| [connemarathon](bots/conne_marathon/bot.py) | connemarathon (since 2002)  | ~30000 |
+| [FSG media downloader](bots/misc/fsgmedia-downloader.py) | download pictures from (Samsung) FSG servers | ~4TB |
+| [Github](bots/github/tester.py)  | use API token to get info about users, repos | DNF |
+| [Google Images](bots/misc/google_image.py) | download images  | DNF |
+| [Hackerrank](bots/misc/hackerrank.py) | download problems statements and solutions | DNF |
+| [IMDB](bots/imdb) | scrape largets dataset of movies | DNF |
+| [ITA industries](bots/ita_industries/cli.py) | italian industries data | DNF |
+| [London Marathon](bots/london_marathon/fetch_details_urls.py) | download marathon results (since 2014)  | ~175000 |
+| [NYC Marathon](bots/nyc_marathon/fetch_details.py) | download full marathon results (since 1970)  | ~1 million |
+| [Rotten Tomaroes](bots/rottentomatoes/cli.py) | browse [Rotten Tomatoes](https://www.rottentomatoes.com/) database | DNF |
+| [Torrent](bots/misc/torrent_downloader.py) | download .torrent files | DNF |
+| [Torrentz](bots/misc/torr_mov.py) | open Torrentz queries | DNF |
+| [Tour De France](bots/letour/cli.py) | results of Tour de France since 1903 | ~160000 |
+| [ultra-marathon statisik](bots/statistik_ultramarathon) | ultra-marathon performances | ~3 million |
 
 ## TODO bots
 | name | description | data size |
 | ------------- | ------------- | ------------- |
-| [Giro d'Italia](http://www.giroditalia.it/it/classifiche/)  | results of Giro d'Italia | ~3500 |
+| [Giro d'Italia](http://www.giroditalia.it/it/classifiche/) | results of Giro d'Italia | ~3500 |
+| [index-of.es](http://index-of.es/) | programming books | DNF |
 
 ## Install
 Usually just a few dependencies are needed:
