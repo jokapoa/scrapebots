@@ -1,14 +1,11 @@
-# Scrapebots
+# scrapebots
 
-*Many Internet bots to scrape various web-platforms*
+*Internet bots to scrape web-platforms*
 
 [![Code Health](https://landscape.io/github/sirfoga/scrapebots/master/landscape.svg?style=flat
-)](https://landscape.io/github/sirfoga/scrapebots/master) [![Code Climate](https://lima.codeclimate.com/github/sirfoga/scrapebots/badges/gpa.svg)](https://codeclimate.com/github/sirfoga/scrapebots) 
-[![Python version](https://img.shields.io/badge/Python-3.5-blue.svg
-)](https://www.python.org/download/releases/3.4.0/)
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+)](https://landscape.io/github/sirfoga/scrapebots/master) [![Code Climate](https://lima.codeclimate.com/github/sirfoga/scrapebots/badges/gpa.svg)](https://codeclimate.com/github/sirfoga/scrapebots) ![pylint Score](https://mperlet.de/pybadge/badges/0.00.svg)
 
-[![GitHub stars](https://img.shields.io/github/stars/sirfoga/scrapebots.svg?style=social&label=Star)](https://github.com/sirfoga/scrapebots) [![GitHub forks](https://img.shields.io/github/stars/sirfoga/scrapebots.svg?style=social&label=Fork)](https://github.com/sirfoga/scrapebots/fork) [![GitHub watchers](https://img.shields.io/github/stars/sirfoga/scrapebots.svg?style=social&label=Watch)](https://github.com/sirfoga/scrapebots) [![GitHub followers](https://img.shields.io/github/stars/sirfoga/scrapebots.svg?style=social&label=Follow)](https://github.com/sirfoga)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fsirfoga%2Fscrapebots.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fsirfoga%2Fscrapebots?ref=badge_shield) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://opensource.org/licenses/Apache-2.0) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/sirfoga/scrapebots/issues)
 
 
 ## Available bots

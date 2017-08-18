@@ -87,5 +87,7 @@ def show_trends_for_user(user, langs, include_already_starred=True):
 if __name__ == '__main__':
     show_trends_for_user(
         "sirfoga",
-        ["", "python", "c", "c++", "java", "haskell", "go", "ruby", "mathematica", "matlab", "tex"]
+        [""],
+        # ["", "python", "c", "c++", "java", "haskell", "go", "ruby", "mathematica", "matlab", "tex"],
+        include_already_starred=False
     )  # example of usage
