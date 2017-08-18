@@ -3,7 +3,7 @@
 *Internet bots to scrape web-platforms*
 
 [![Code Health](https://landscape.io/github/sirfoga/scrapebots/master/landscape.svg?style=flat
-)](https://landscape.io/github/sirfoga/scrapebots/master) [![Code Climate](https://lima.codeclimate.com/github/sirfoga/scrapebots/badges/gpa.svg)](https://codeclimate.com/github/sirfoga/scrapebots) ![pylint Score](https://mperlet.de/pybadge/badges/0.00.svg)
+)](https://landscape.io/github/sirfoga/scrapebots/master) [![Code Climate](https://lima.codeclimate.com/github/sirfoga/scrapebots/badges/gpa.svg)](https://codeclimate.com/github/sirfoga/scrapebots) ![pylint Score](https://mperlet.de/pybadge/badges/7.01.svg)
 
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fsirfoga%2Fscrapebots.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Fsirfoga%2Fscrapebots?ref=badge_shield) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://opensource.org/licenses/Apache-2.0) [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/sirfoga/scrapebots/issues)
 

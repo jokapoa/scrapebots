@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file.
 - flake8/pylint-ed amazon module
 - flake8/pylint-ed conne marathon module
 - flake8/pylint-ed github module
+- flake8/pylint-ed imdb module
+
+### Removed
+- github models (now using hal.internet.github)
 
 ### Fixed
 - .gitignore
