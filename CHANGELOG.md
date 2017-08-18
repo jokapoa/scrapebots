@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 ### Refactored
 - all bots now in `bots` module
 
+### Fixed
+- flake8/pylint in amazon bots
+
+### Fixed
+- .gitignore
+
 ## 0.1.8 - 2017-06-08
 
 ### Added
