@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - flake8/pylint-ed amazon module
 - flake8/pylint-ed conne marathon module
+- flake8/pylint-ed github module
 
 ### Fixed
 - .gitignore

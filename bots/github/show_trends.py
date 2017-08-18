@@ -16,10 +16,14 @@
 # limitations under the License.
 
 
-from colorama import init, Fore, Style
-from models import GithubUser
+""" Prints trending repositories for user """
 
-code_lang_colors = {
+
+from colorama import init, Fore, Style
+
+from hal.internet.github import GithubUser
+
+LANGUAGES_COLORS = {
     "": Fore.WHITE + Style.BRIGHT,
     "python": Fore.CYAN + Style.BRIGHT,
     "c": Fore.LIGHTBLUE_EX + Style.BRIGHT,
@@ -45,49 +49,51 @@ def print_repos_details(repos_list, lang=""):
     """
 
     init(autoreset=True)  # colorful output
-    lang_color = code_lang_colors[lang] if lang in code_lang_colors else ""  # color output for this language
+    lang_color = LANGUAGES_COLORS[lang] if lang in LANGUAGES_COLORS else ""
     url_color = Fore.BLUE + Style.BRIGHT
 
-    for r in repos_list:
-        if not (r["name"] is None and r["description"] is None):  # valid repository
-            print(lang_color + str(r["name"]) + " " + str(r["language"]))
-            print(str(r["description"]))
-            print(str(r["stargazers_count"]), "***", " ", str(r["forks_count"]), "|-", " ", str(r["subscribers_count"]),
+    for repo in repos_list:
+        if not (repo["name"] is None and repo["description"] is None):
+            print(lang_color + str(repo["name"]) + " " + str(repo["language"]))
+            print(str(repo["description"]))
+            print(str(repo["stargazers_count"]), "***", " ",
+                  str(repo["forks_count"]), "|-", " ",
+                  str(repo["subscribers_count"]),
                   "-.-")
-            print("Created", str(r["created_at"]), " ", "Last update", str(r["pushed_at"]))
-            print(url_color + str(r["html_url"]), "\n")
+            print("Created", str(repo["created_at"]), " ", "Last update",
+                  str(repo["pushed_at"]))
+            print(url_color + str(repo["html_url"]), "\n")
 
 
-def show_trends_for_user(user, langs, include_already_starred=True):
+def show_trends_for_user(user, languages):
     """
     :param user: str
         Username of Github user
-    :param langs: list
+    :param languages: list
         List of languages to get trends for
-    :param include_already_starred: bool
-        True iff want to print out also already starred repositories
     :return: void
         Prints trending repositories of user
     """
 
-    u = GithubUser(user)
-    stars = []
-
-    if not include_already_starred:
-        print("Fetching", user + "'s stars")
-        stars = u.get_starred_repos()
-
-    for l in langs:
-        print("Fetching trending", l.title(), "repositories for", user)
-        trends = u.get_trending_daily_except(avoid=stars, lang=l)
+    github_user = GithubUser(user)
+    for language in languages:
+        print("Fetching trending", language.title(), "repositories for", user)
+        trends = github_user.get_trending_daily_not_starred()
         print("Found", str(len(trends)), "repositories:\n")
-        print_repos_details(trends, lang=l)
+        print_repos_details(trends, lang=language)
+
+
+def main():
+    """
+    :return: void
+        Prints trending repositories for user
+    """
+
+    show_trends_for_user(
+        "sirfoga",
+        [""]
+    )  # example of usage
 
 
 if __name__ == '__main__':
-    show_trends_for_user(
-        "sirfoga",
-        [""],
-        # ["", "python", "c", "c++", "java", "haskell", "go", "ruby", "mathematica", "matlab", "tex"],
-        include_already_starred=False
-    )  # example of usage
+    main()
