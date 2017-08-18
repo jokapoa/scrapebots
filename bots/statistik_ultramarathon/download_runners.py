@@ -35,7 +35,8 @@ WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        "fetch_runners_details-" + str(int(time.time())) + ".log")
+                        "fetch_runners_details-" + str(
+                            int(time.time())) + ".log")
 MIN_RUNNER_PAGE = 1  # (1) minimum page where to find runner
 MAX_RUNNER_PAGE = 1000  # (946958)  # maximum page where to find runner
 
@@ -92,7 +93,8 @@ def create_args():
     """
 
     parser = argparse.ArgumentParser(usage="-of <path to output folder>")
-    parser.add_argument("-f", dest="path", help="path to output folder", required=True)
+    parser.add_argument("-f", dest="path", help="path to output folder",
+                        required=True)
     return parser
 
 
@@ -212,7 +214,8 @@ def get_runner_results(raw_html):
 
             try:
                 race_distance = str(columns[2].text).strip()
-                if race_distance.find("km") > 0 or race_distance.find("mi") > 0:
+                if race_distance.find("km") > 0 or race_distance.find(
+                        "mi") > 0:
                     race_details["distance"] = race_distance
                 else:  # this is not a distance
                     race_details["time"] = race_distance
@@ -234,22 +237,26 @@ def get_runner_results(raw_html):
                 race_details["name"] = VALUE_NOT_FOUND
 
             try:
-                race_details["url"] = BASE_URL + str(columns[1].a["href"])[2:-2]
+                race_details["url"] = BASE_URL + str(columns[1].a["href"])[
+                                                 2:-2]
             except:
                 race_details["url"] = VALUE_NOT_FOUND
 
             try:
-                race_details["place_overall"] = str(columns[6].text.split(":")[-1]).strip()
+                race_details["place_overall"] = str(
+                    columns[6].text.split(":")[-1]).strip()
             except:
                 race_details["place_overall"] = VALUE_NOT_FOUND
 
             try:
-                race_details["place_overall"] = str(columns[7].text.split(":")[-1]).strip()
+                race_details["place_overall"] = str(
+                    columns[7].text.split(":")[-1]).strip()
             except:
                 race_details["place_overall"] = VALUE_NOT_FOUND
 
             try:
-                race_details["place_overall"] = str(columns[8].text.split(":")[-1]).strip()
+                race_details["place_overall"] = str(
+                    columns[8].text.split(":")[-1]).strip()
             except:
                 race_details["place_overall"] = VALUE_NOT_FOUND
 
@@ -292,22 +299,28 @@ def save_runner_details_to_file(raw_html, out_dir, url=None):
     """
 
     try:
-        details, results = get_details_of_runner_in_page(raw_html, url=url)  # parse page
-        runner_out_dir = os.path.join(out_dir, details["birth_date"], details["nationality"],
-                                      details["name"])  # specific folder for race
+        details, results = get_details_of_runner_in_page(raw_html,
+                                                         url=url)  # parse page
+        runner_out_dir = os.path.join(out_dir, details["birth_date"],
+                                      details["nationality"],
+                                      details[
+                                          "name"])  # specific folder for race
         if not os.path.exists(runner_out_dir):
             os.makedirs(runner_out_dir)  # prepare output directory
 
-        out_file = os.path.join(runner_out_dir, "details.json")  # output file for details
+        out_file = os.path.join(runner_out_dir,
+                                "details.json")  # output file for details
         with open(out_file, "w", buffering=1) as o:  # use buffer
             json.dump(details, o, indent=4, sort_keys=True)
             o.flush()
 
         if len(results) > 1:
-            out_file = os.path.join(runner_out_dir, "results.csv")  # output file for this runner
+            out_file = os.path.join(runner_out_dir,
+                                    "results.csv")  # output file for this runner
             keys = results[0].keys()
             with open(out_file, "w", buffering=1) as o:  # use buffer
-                dict_writer = csv.DictWriter(o, keys, quotechar="\"", delimiter=",")
+                dict_writer = csv.DictWriter(o, keys, quotechar="\"",
+                                             delimiter=",")
                 dict_writer.writeheader()
                 dict_writer.writerows(results)
                 o.flush()
@@ -322,9 +335,11 @@ def save_runner_details_to_file(raw_html, out_dir, url=None):
 async def fetch(u):
     try:
         conn = ProxyConnector(remote_resolve=True)
-        async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest,
+        async with aiohttp.ClientSession(connector=conn,
+                                         request_class=ProxyClientRequest,
                                          cookies=WEBPAGE_COOKIES) as session:
-            async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
+            async with session.get(u,
+                                   proxy="socks5://127.0.0.1:9150") as response:
                 body = await response.text()
                 raw_sources.append({
                     "url": str(u),
@@ -369,7 +384,8 @@ if __name__ == '__main__':
             os.makedirs(output_dir)  # prepare output directory
 
         urls_list = [get_url_of_page(p) for p in
-                     range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)]  # get list of races from input file
+                     range(MIN_RUNNER_PAGE,
+                           MAX_RUNNER_PAGE + 1)]  # get list of races from input file
         total = len(urls_list)
         raw_sources = []  # list of raw HTML pages to parse
 

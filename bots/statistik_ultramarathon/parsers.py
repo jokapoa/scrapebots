@@ -67,8 +67,11 @@ def get_details_of_race_in_page(raw_html, url=None):
                         d[headers[i]] = VALUE_NOT_FOUND
 
                 try:  # try parse performance time and compute distance
-                    time_performance = datetime.strptime(d["Performance"], "%H:%M:%S h")
-                    time_hours = get_seconds(time_performance.strftime("%H:%M:%S")) / (60 * 60)  # hours of performance
+                    time_performance = datetime.strptime(d["Performance"],
+                                                         "%H:%M:%S h")
+                    time_hours = get_seconds(
+                        time_performance.strftime("%H:%M:%S")) / (
+                                     60 * 60)  # hours of performance
                     speed_performance = float(d["Avg.Speed km/h"])
                     distance_performance = speed_performance * time_hours  # compute distance
 
@@ -89,7 +92,8 @@ def get_details_of_race_in_page(raw_html, url=None):
             race_date = dates[1]
         else:
             race_date = dates[0]
-        race_date = datetime.strptime(race_date, "%d.%m.%Y").strftime("%Y/%m/%d")
+        race_date = datetime.strptime(race_date, "%d.%m.%Y").strftime(
+            "%Y/%m/%d")
     except:
         race_date = VALUE_NOT_FOUND
 
@@ -212,7 +216,8 @@ def get_runner_results(raw_html, base_url="http://statistik.d-u-v.org/"):
 
             try:
                 race_distance = str(columns[2].text).strip()
-                if race_distance.find("km") > 0 or race_distance.find("mi") > 0:
+                if race_distance.find("km") > 0 or race_distance.find(
+                        "mi") > 0:
                     race_details["distance"] = race_distance
                 else:  # this is not a distance
                     race_details["time"] = race_distance
@@ -234,22 +239,26 @@ def get_runner_results(raw_html, base_url="http://statistik.d-u-v.org/"):
                 race_details["name"] = VALUE_NOT_FOUND
 
             try:
-                race_details["url"] = base_url + str(columns[1].a["href"])[2:-2]
+                race_details["url"] = base_url + str(columns[1].a["href"])[
+                                                 2:-2]
             except:
                 race_details["url"] = VALUE_NOT_FOUND
 
             try:
-                race_details["place_overall"] = str(columns[6].text.split(":")[-1]).strip()
+                race_details["place_overall"] = str(
+                    columns[6].text.split(":")[-1]).strip()
             except:
                 race_details["place_overall"] = VALUE_NOT_FOUND
 
             try:
-                race_details["place_overall"] = str(columns[7].text.split(":")[-1]).strip()
+                race_details["place_overall"] = str(
+                    columns[7].text.split(":")[-1]).strip()
             except:
                 race_details["place_overall"] = VALUE_NOT_FOUND
 
             try:
-                race_details["place_overall"] = str(columns[8].text.split(":")[-1]).strip()
+                race_details["place_overall"] = str(
+                    columns[8].text.split(":")[-1]).strip()
             except:
                 race_details["place_overall"] = VALUE_NOT_FOUND
 
@@ -292,11 +301,13 @@ def get_runner_details_as_dict(raw_html, url=None, log_file=None):
     """
 
     try:
-        details, results = get_details_of_runner_in_page(raw_html, url=url)  # parse page
+        details, results = get_details_of_runner_in_page(raw_html,
+                                                         url=url)  # parse page
         details["results"] = results  # add results to dict
         return details
     except:
         print("\t!!!\tErrors getting dict from url", str(url))
         if log_file is not None:
-            append_to_file(log_file, "Errors getting dict from url " + str(url))
+            append_to_file(log_file,
+                           "Errors getting dict from url " + str(url))
         return None

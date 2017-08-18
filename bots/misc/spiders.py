@@ -33,7 +33,8 @@ from hal.internet.web import Webpage
 class SpiderThread(threading.Thread):
     """ thread that helps Spider to crawl the internet """
 
-    def __init__(self, boss, queue, pool, recall, timeout, max_pages, domains, name):
+    def __init__(self, boss, queue, pool, recall, timeout, max_pages, domains,
+                 name):
         """
         :param queue: queue where to fetch urls
         :param pool: hash-table where to store results
@@ -71,7 +72,8 @@ class SpiderThread(threading.Thread):
         """
 
         for attempt in range(10):
-            if not len(self.pool) >= self.max_pages:  # or not self.queue.empty()
+            if not len(
+                    self.pool) >= self.max_pages:  # or not self.queue.empty()
                 return False
             time.sleep(0.1)
         return True
@@ -229,7 +231,8 @@ class Spider(object):
 
     UPDATE_INTERVAL = 0  # interval at which sample threads for status and log
 
-    def __init__(self, config, starter, recall, timeout, max_pages, max_threads, domains, output, name):
+    def __init__(self, config, starter, recall, timeout, max_pages,
+                 max_threads, domains, output, name):
         """
         :param starter: internet-page where to start crawler
         :param recall: max number of attempts to get web_page answer
@@ -302,7 +305,8 @@ class Spider(object):
 
         old_thread.log = "DONE"  # stop thread
         old_thread._stop.set()
-        thread_index = self.threads.index(old_thread)  # remove it form list of threads
+        thread_index = self.threads.index(
+            old_thread)  # remove it form list of threads
         del self.threads[thread_index]
         if len(self.threads) < 1:  # check if last, then exit
             self.exit()
@@ -356,7 +360,8 @@ class Spider(object):
         if self.pages_crawled == 0:
             self.avg_time_crawling = 0
         else:
-            self.avg_time_crawling = self.running_time / float(self.pages_crawled)
+            self.avg_time_crawling = self.running_time / float(
+                self.pages_crawled)
 
         self.ETA = float(self.max_pages) * float(self.avg_time_crawling)
         self.show_verbose()  # verbose log
@@ -371,14 +376,22 @@ class Spider(object):
         column0_width = int(shell_width * float(0.4))  # page stats
         column1_width = int(shell_width * float(0.6))
         print('-------PAGES-------'.center(column0_width, '-'))
-        print('crawled pages:'.ljust(column0_width) + '{:.{}}'.format(str(self.pages_crawled), column1_width))
-        print('queued'.ljust(column0_width) + '{:.{}}'.format(str(self.pages_in_queue), column1_width))
-        print('last'.ljust(column0_width) + shell.get_formatted(self.last_crawled, column1_width))
-        print('current'.ljust(column0_width) + shell.get_formatted(self.current_crawling, column1_width))
-        print('next crawl'.ljust(column0_width) + shell.get_formatted(self.next_crawl, column1_width))
-        print('running since (s)'.ljust(column0_width) + '{:.{}}'.format(str(self.running_time), column1_width))
-        print('avg time/crawl(s)'.ljust(column0_width) + '{:.{}}'.format(str(self.avg_time_crawling), column1_width))
-        print('eta (s)'.ljust(column0_width) + '{:.{}}'.format(str(self.ETA), column1_width))
+        print('crawled pages:'.ljust(column0_width) + '{:.{}}'.format(
+            str(self.pages_crawled), column1_width))
+        print('queued'.ljust(column0_width) + '{:.{}}'.format(
+            str(self.pages_in_queue), column1_width))
+        print('last'.ljust(column0_width) + shell.get_formatted(
+            self.last_crawled, column1_width))
+        print('current'.ljust(column0_width) + shell.get_formatted(
+            self.current_crawling, column1_width))
+        print('next crawl'.ljust(column0_width) + shell.get_formatted(
+            self.next_crawl, column1_width))
+        print('running since (s)'.ljust(column0_width) + '{:.{}}'.format(
+            str(self.running_time), column1_width))
+        print('avg time/crawl(s)'.ljust(column0_width) + '{:.{}}'.format(
+            str(self.avg_time_crawling), column1_width))
+        print('eta (s)'.ljust(column0_width) + '{:.{}}'.format(str(self.ETA),
+                                                               column1_width))
         lines_printed = 9
 
         name = []
@@ -393,12 +406,14 @@ class Spider(object):
         column3_width = int(shell_width * float(0.15))
         column4_width = int(shell_width * float(0.55))
         print('-------THREADS-------'.center(column0_width, '-'))
-        print('NAME'.ljust(column2_width) + 'STATUS'.ljust(column3_width) + 'URL'.ljust(column4_width))
+        print('NAME'.ljust(column2_width) + 'STATUS'.ljust(
+            column3_width) + 'URL'.ljust(column4_width))
         lines_printed += 2
         for index in range(min(len(name), len(status), len(url))):
             print(
-                name[index].ljust(column2_width) + status[index].ljust(column3_width) + shell.get_formatted(url[index],
-                                                                                                            column4_width))
+                name[index].ljust(column2_width) + status[index].ljust(
+                    column3_width) + shell.get_formatted(url[index],
+                                                         column4_width))
             lines_printed += 1
 
         # cursor up -> next time overwrite
@@ -410,7 +425,8 @@ class Spider(object):
         :return: exit main method
         """
 
-        os.system('cls' if os.name == 'nt' else 'clear')  # clear window and restore cursor
+        os.system(
+            'cls' if os.name == 'nt' else 'clear')  # clear window and restore cursor
         os.system('setterm -cursor on')
 
         self.can_update = False  # job done -> exit

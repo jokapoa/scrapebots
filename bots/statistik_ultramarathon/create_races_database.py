@@ -26,13 +26,15 @@ from pymongo import MongoClient
 from utils import get_dicts_from_csv
 
 PATH_TO_DATA_FOLDER = "/home/stefano/Coding/Data/projects/galore/running/ultramarathon/races/statistik-races/races_details/"
-VALUE_NOT_FOUND = str("DNF")  # value to put when data cannot be found (or some errors occur)
+VALUE_NOT_FOUND = str(
+    "DNF")  # value to put when data cannot be found (or some errors occur)
 BASE_URL = "http://statistik.d-u-v.org/"  # url of web-page
 WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        str(os.path.basename(__file__)) + str(int(time.time())) + ".log")
+                        str(os.path.basename(__file__)) + str(
+                            int(time.time())) + ".log")
 DATABASE_NAME = "statistik-races"  # name of database to use
 mongodb_client = MongoClient()  # mongodb client
 # mongodb_client.drop_database(DATABASE_NAME)  # remove all previous data in database
@@ -55,7 +57,8 @@ def get_race_dict_from_files(details_file, results_file):
     results_list = get_dicts_from_csv(results_file)
     for i in range(len(results_list)):
         bson_compatible_dict = {}
-        for k in results_list[i].keys():  # edit name of all keys with a dot (not officially accepted by bson)
+        for k in results_list[
+            i].keys():  # edit name of all keys with a dot (not officially accepted by bson)
             bson_compatible_dict[str(k).replace(".", "")] = results_list[i][k]
         results_list[i] = bson_compatible_dict
 
@@ -71,7 +74,8 @@ def get_dict_in_folder(dir_path):
         Dictionary with data about race in path
     """
 
-    content_dir = Directory.ls(dir_path, recurse=False)  # get content of folder
+    content_dir = Directory.ls(dir_path,
+                               recurse=False)  # get content of folder
     files_in_folder = [f for f in content_dir if os.path.isfile(f)]
     if len(files_in_folder) == 2:
         return get_race_dict_from_files(
@@ -83,7 +87,8 @@ def get_dict_in_folder(dir_path):
 
 
 if __name__ == '__main__':
-    paths = Directory.ls(PATH_TO_DATA_FOLDER, recurse=True)  # get list of files and folders to edit
+    paths = Directory.ls(PATH_TO_DATA_FOLDER,
+                         recurse=True)  # get list of files and folders to edit
     paths = [p for p in paths if os.path.isdir(p)]
     start_time = time.time()
     total = len(paths)

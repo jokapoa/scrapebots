@@ -34,7 +34,8 @@ WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        str(os.path.basename(__file__)) + str(int(time.time())) + ".log")
+                        str(os.path.basename(__file__)) + str(
+                            int(time.time())) + ".log")
 
 
 def save_race_details_to_file(raw_html, out_dir, url=None):
@@ -50,21 +51,28 @@ def save_race_details_to_file(raw_html, out_dir, url=None):
     """
 
     try:
-        details, results = get_details_of_race_in_page(raw_html, url=url)  # parse page
-        race_out_dir = os.path.join(out_dir, details["name"], details["distance"],
-                                    details["date"].replace("/", "-"))  # specific folder for race
+        details, results = get_details_of_race_in_page(raw_html,
+                                                       url=url)  # parse page
+        race_out_dir = os.path.join(out_dir, details["name"],
+                                    details["distance"],
+                                    details["date"].replace("/",
+                                                            "-"))  # specific folder for race
         if not os.path.exists(race_out_dir):
             os.makedirs(race_out_dir)  # prepare output directory
 
-        out_file = os.path.join(race_out_dir, "results.csv")  # output file for this race
+        out_file = os.path.join(race_out_dir,
+                                "results.csv")  # output file for this race
         if len(results) > 1:
             keys = results[0].keys()
-            with open(out_file, "w") as output_file:  # write race results (standings)
-                dict_writer = csv.DictWriter(output_file, keys, quotechar="\"", delimiter=",")
+            with open(out_file,
+                      "w") as output_file:  # write race results (standings)
+                dict_writer = csv.DictWriter(output_file, keys, quotechar="\"",
+                                             delimiter=",")
                 dict_writer.writeheader()
                 dict_writer.writerows(results)
 
-        out_file_details = os.path.join(race_out_dir, "details.json")  # output file for details
+        out_file_details = os.path.join(race_out_dir,
+                                        "details.json")  # output file for details
         with open(out_file_details, "w") as o:  # write race details
             json.dump(details, o, indent=4, sort_keys=True)
 
@@ -90,9 +98,11 @@ async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
     for _ in range(max_attempts):
         try:
             conn = ProxyConnector(remote_resolve=True)
-            async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest,
+            async with aiohttp.ClientSession(connector=conn,
+                                             request_class=ProxyClientRequest,
                                              cookies=WEBPAGE_COOKIES) as session:
-                async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
+                async with session.get(u,
+                                       proxy="socks5://127.0.0.1:9150") as response:
                     body = await response.text()
                     raw_sources.append({
                         "url": str(u),

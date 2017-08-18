@@ -80,7 +80,8 @@ def get_sitemaps_urls():
     for s in sitemaps:
         url = str(s.loc.text)  # get url of sitemap
         sitemap_id = url.split("-")[-1].replace(".xml.gz", "")
-        if int(sitemap_id) >= 0:  # TODO tune this to get only chunks (min: 0, max: 32)
+        if int(
+                sitemap_id) >= 0:  # TODO tune this to get only chunks (min: 0, max: 32)
             urls.append(url)
 
     return urls
@@ -130,10 +131,12 @@ def download_image(url):
         Tries to download image to right folder (parses url to get location); if successful returns True, otherwise False
     """
 
-    relative_url = url.replace(FSG_MEDIA_URL, "")  # get url relative to fsg servers
+    relative_url = url.replace(FSG_MEDIA_URL,
+                               "")  # get url relative to fsg servers
     tokens = relative_url.split("/")  # split url to directories
     img_name = tokens[-1]  # get image name
-    download_folder = os.path.join(IMAGES_FOLDER, tokens[0], tokens[1])  # reproduce local relative url
+    download_folder = os.path.join(IMAGES_FOLDER, tokens[0],
+                                   tokens[1])  # reproduce local relative url
 
     if not os.path.exists(download_folder):  # create necessary directories
         os.makedirs(download_folder)
@@ -141,11 +144,13 @@ def download_image(url):
     local_file = os.path.join(download_folder, img_name)  # get local file path
     if not os.path.exists(local_file):  # already downloaded -> skipping
         try:
-            url = url.replace(FSG_MEDIA_URL, REDIRECT_MEDIA_URL)  # make redirection to right servers
+            url = url.replace(FSG_MEDIA_URL,
+                              REDIRECT_MEDIA_URL)  # make redirection to right servers
             download_url(url, local_file)  # download image
             return True
         except Exception as e:
-            print("\t\t\tFailed download image ...", url[-MAX_LENGTH_VERBOSE_WORD:], "\n")
+            print("\t\t\tFailed download image ...",
+                  url[-MAX_LENGTH_VERBOSE_WORD:], "\n")
             return False
     else:
         print("\t\t\tAlready downloaded ... skipping")
@@ -185,7 +190,8 @@ def main():
     timer_total = time.time()  # timer to time performance
     for j in range(len(sitemap_urls)):
         try:
-            print("Getting content of sitemap ...", sitemap_urls[j][-MAX_LENGTH_VERBOSE_WORD:])
+            print("Getting content of sitemap ...",
+                  sitemap_urls[j][-MAX_LENGTH_VERBOSE_WORD:])
             c = get_sitemap_content(sitemap_urls[j])
             print("Got content of sitemap")
             try:
@@ -197,20 +203,27 @@ def main():
                 timer_sitemap = time.time()  # timer to time performance
                 for i in range(len(images)):
                     try:
-                        print("\t\tDownloading image ...", images[i][-MAX_LENGTH_VERBOSE_WORD:])
-                        is_download_successful = download_image(images[i])  # download image
+                        print("\t\tDownloading image ...",
+                              images[i][-MAX_LENGTH_VERBOSE_WORD:])
+                        is_download_successful = download_image(
+                            images[i])  # download image
 
                         # notify user of sitemap download progress
                         percentage = float(i + 1) / tot_images * 100.0
-                        time_eta = get_eta(timer_sitemap, percentage)  # get eta
-                        print("\t\tCompleted image", i + 1, "/", tot_images, "(", "{:03.2f}".format(percentage), "%)")
-                        print("\t\t\tETA sitemap", j + 1, "about", "{:03.2f}".format(time_eta / 60.0), "' =",
+                        time_eta = get_eta(timer_sitemap,
+                                           percentage)  # get eta
+                        print("\t\tCompleted image", i + 1, "/", tot_images,
+                              "(", "{:03.2f}".format(percentage), "%)")
+                        print("\t\t\tETA sitemap", j + 1, "about",
+                              "{:03.2f}".format(time_eta / 60.0), "' =",
                               "{:03.2f}".format(time_eta / (60.0 * 60.0)), "h")
 
                         # notify user of total download progress
-                        percentage = float(i + 1) / (tot_sitemaps * tot_images) * 100.0
+                        percentage = float(i + 1) / (
+                            tot_sitemaps * tot_images) * 100.0
                         time_eta = get_eta(timer_total, percentage)  # get eta
-                        print("\t\t\tETA total about ", "{:03.2f}".format(time_eta / 60.0), "' =",
+                        print("\t\t\tETA total about ",
+                              "{:03.2f}".format(time_eta / 60.0), "' =",
                               "{:03.2f}".format(time_eta / (60.0 * 60.0)), "h")
 
                         if is_download_successful:
@@ -218,16 +231,21 @@ def main():
                         else:
                             raise ValueError("Cannot download image")
                     except Exception as e:
-                        print("\n[!] Failed downloading image ...", images[i][-MAX_LENGTH_VERBOSE_WORD:], "\n")
+                        print("\n[!] Failed downloading image ...",
+                              images[i][-MAX_LENGTH_VERBOSE_WORD:], "\n")
             except Exception as e:
-                print("\n[!] Failed getting images from sitemap ...", sitemap_urls[j][-MAX_LENGTH_VERBOSE_WORD:], "\n")
+                print("\n[!] Failed getting images from sitemap ...",
+                      sitemap_urls[j][-MAX_LENGTH_VERBOSE_WORD:], "\n")
         except Exception as e:
-            print("\n[!] Failed getting content of sitemap ...", sitemap_urls[j][-MAX_LENGTH_VERBOSE_WORD:], "\n")
+            print("\n[!] Failed getting content of sitemap ...",
+                  sitemap_urls[j][-MAX_LENGTH_VERBOSE_WORD:], "\n")
 
         percentage = float(j + 1) / tot_sitemaps * 100.0
         time_eta = get_eta(timer_total, percentage)  # get eta
-        print("\t\tCompleted sitemap", j + 1, "/", tot_sitemaps, "(", "{:03.2f}".format(percentage), "%)")
-        print("\t\tETA total:", "{:03.2f}".format(time_eta / 60.0), "' =", "{:03.2f}".format(time_eta / (60.0 * 60.0)),
+        print("\t\tCompleted sitemap", j + 1, "/", tot_sitemaps, "(",
+              "{:03.2f}".format(percentage), "%)")
+        print("\t\tETA total:", "{:03.2f}".format(time_eta / 60.0), "' =",
+              "{:03.2f}".format(time_eta / (60.0 * 60.0)),
               "h")
 
 

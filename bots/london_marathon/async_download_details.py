@@ -33,7 +33,8 @@ def create_args():
     """
 
     parser = argparse.ArgumentParser(usage="-f <path to input file>")
-    parser.add_argument("-f", dest="file_path", help="e.g /home/awesome/data/data.csv", required=True)
+    parser.add_argument("-f", dest="file_path",
+                        help="e.g /home/awesome/data/data.csv", required=True)
     return parser
 
 
@@ -65,8 +66,10 @@ def check_args(file_path):
 async def fetch(u):
     try:
         conn = ProxyConnector(remote_resolve=True)
-        async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest) as session:
-            async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
+        async with aiohttp.ClientSession(connector=conn,
+                                         request_class=ProxyClientRequest) as session:
+            async with session.get(u,
+                                   proxy="socks5://127.0.0.1:9150") as response:
                 print_time_eta(
                     get_time_eta(
                         len(raw_sources),
@@ -107,7 +110,8 @@ if __name__ == '__main__':
     file_path = parse_args(create_args())
 
     if check_args(file_path):
-        urls = StreamsBot(file_path).read_results_url_from_csv()  # parse file to get urls of results
+        urls = StreamsBot(
+            file_path).read_results_url_from_csv()  # parse file to get urls of results
         total = len(urls)
         start_time = int(time.time())  # get ms of day
 
@@ -123,7 +127,9 @@ if __name__ == '__main__':
         start_time = int(time.time())  # get ms of day
         total = len(raw_sources)
         for k in raw_sources.keys():
-            athletic_performance = AthletePerformance(url=k, raw_html=raw_sources[k])  # create obj
+            athletic_performance = AthletePerformance(url=k,
+                                                      raw_html=raw_sources[
+                                                          k])  # create obj
             athletic_performance.parse_details()
             d = athletic_performance.to_dict()
             details.append(d)  # add to list
@@ -136,7 +142,8 @@ if __name__ == '__main__':
                 )  # get ETA
             )  # debug info
 
-        out_path = os.path.join(os.path.dirname(file_path), "out-" + str(int(time.time())) + ".csv")
+        out_path = os.path.join(os.path.dirname(file_path),
+                                "out-" + str(int(time.time())) + ".csv")
         StreamsBot(out_path).write_dicts_to_csv(details)  # save to output file
     else:
         print("Error while parsing args.")

@@ -29,9 +29,12 @@ def create_args():
         Parser that handles cmd arguments.
     """
 
-    parser = argparse.ArgumentParser(usage="-i <path to input .csv file> -o <path to output folder>")
-    parser.add_argument("-i", dest="path_in", help="path to input .csv file", required=True)
-    parser.add_argument("-o", dest="path_out", help="path to output folder", required=True)
+    parser = argparse.ArgumentParser(
+        usage="-i <path to input .csv file> -o <path to output folder>")
+    parser.add_argument("-i", dest="path_in", help="path to input .csv file",
+                        required=True)
+    parser.add_argument("-o", dest="path_out", help="path to output folder",
+                        required=True)
     return parser
 
 

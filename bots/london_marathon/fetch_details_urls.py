@@ -29,9 +29,13 @@ def create_args():
         Parser that handles cmd arguments.
     """
 
-    parser = argparse.ArgumentParser(usage="-y <years to fetch (optional)> -f <path to data file>")
-    parser.add_argument("-y", dest="years", help="e.g '2017', '2014-2017', '2014,2016,2017'", required=False)
-    parser.add_argument("-f", dest="file_path", help="e.g /home/awesome/data/data.csv", required=True)
+    parser = argparse.ArgumentParser(
+        usage="-y <years to fetch (optional)> -f <path to data file>")
+    parser.add_argument("-y", dest="years",
+                        help="e.g '2017', '2014-2017', '2014,2016,2017'",
+                        required=False)
+    parser.add_argument("-f", dest="file_path",
+                        help="e.g /home/awesome/data/data.csv", required=True)
     return parser
 
 
@@ -49,7 +53,8 @@ def parse_args(parser):
         years = args.years
         if years.find(",") > 0:  # multiple years
             years = years.split(",")  # tokenize
-            years = [str(y).strip() for y in years if len(y) >= 4]  # strip and discard null values
+            years = [str(y).strip() for y in years if
+                     len(y) >= 4]  # strip and discard null values
             years = [int(y) for y in years]  # parse
         elif years.find("-") > 0:  # years range
             min_year = int(years.split("-")[0])
@@ -92,8 +97,10 @@ def main():
             bot = StreamsBot(file_path)
             bot.write_dict_to_csv(urls)
         else:
-            urls = StreamsBot(file_path).read_results_url_from_csv()  # parse file to get urls of results
-            out_path = os.path.join(os.path.dirname(file_path), "out-" + str(int(time.time())) + ".csv")
+            urls = StreamsBot(
+                file_path).read_results_url_from_csv()  # parse file to get urls of results
+            out_path = os.path.join(os.path.dirname(file_path),
+                                    "out-" + str(int(time.time())) + ".csv")
             LondonMarathonBot.async_download_performance_details(
                 urls,
                 out_path

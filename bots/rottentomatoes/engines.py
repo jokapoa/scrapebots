@@ -35,7 +35,8 @@ class RottenTomatoesSearchResult(SearchEngineResult):
 
 class RottenTomatoes(SearchEngine):
     def __init__(self):
-        SearchEngine.__init__(self, "https://www.rottentomatoes.com/search/?search=",
+        SearchEngine.__init__(self,
+                              "https://www.rottentomatoes.com/search/?search=",
                               blank_replace="%20")  # create search engine with url
 
     @staticmethod
@@ -66,27 +67,33 @@ class RottenTomatoes(SearchEngine):
                 title = "No title found"
 
             try:
-                link = urljoin(self.domain, item.find_all("a")[1]["href"].strip())  # link
+                link = urljoin(self.domain,
+                               item.find_all("a")[1]["href"].strip())  # link
             except:
                 link = "No link found"
 
             try:
-                year = int(re.sub("\D", "", item.find_all("span", {"class": "movie_year"})[0].text))  # year
+                year = int(re.sub("\D", "", item.find_all("span", {
+                    "class": "movie_year"})[0].text))  # year
             except:
                 year = -1
 
             try:
                 artists = [x.text.strip().title() for x in
-                           item.find_all("a", {"class": "unstyled articleLink"})[1:]]  # artists
+                           item.find_all("a",
+                                         {"class": "unstyled articleLink"})[
+                           1:]]  # artists
             except:
                 artists = []
 
             try:
-                tmeter = int(re.sub("\D", "", item.find_all("span", {"class": "tMeterScore"})[0].text))  # tmeter
+                tmeter = int(re.sub("\D", "", item.find_all("span", {
+                    "class": "tMeterScore"})[0].text))  # tmeter
             except:
                 tmeter = -1
 
-            return RottenTomatoesSearchResult(title, link, category, year, artists, tmeter)
+            return RottenTomatoesSearchResult(title, link, category, year,
+                                              artists, tmeter)
         elif category == "TV":
             try:
                 title = item.find_all("a")[1].text.strip()  # title
@@ -94,7 +101,8 @@ class RottenTomatoes(SearchEngine):
                 title = "No title found"
 
             try:
-                link = urljoin(self.domain, item.find_all("a")[1]["href"].strip())  # link
+                link = urljoin(self.domain,
+                               item.find_all("a")[1]["href"].strip())  # link
             except:
                 link = "No link found"
 
@@ -104,11 +112,13 @@ class RottenTomatoes(SearchEngine):
                 year = -1
 
             try:
-                tmeter = int(item.find_all("span", {"class": "tMeterScore"})[0].text.replace("%", ""))  # tmeter
+                tmeter = int(item.find_all("span", {"class": "tMeterScore"})[
+                                 0].text.replace("%", ""))  # tmeter
             except:
                 tmeter = -1
 
-            return RottenTomatoesSearchResult(title, link, category, year, [], tmeter)
+            return RottenTomatoesSearchResult(title, link, category, year, [],
+                                              tmeter)
         elif category == "Celebrities" or category == "Critics" or category == "Franchise":
             try:
                 title = item.find_all("a")[1].text.strip()  # title
@@ -116,11 +126,13 @@ class RottenTomatoes(SearchEngine):
                 title = "No title found"
 
             try:
-                link = urljoin(self.domain, item.find_all("a")[1]["href"].strip())  # link
+                link = urljoin(self.domain,
+                               item.find_all("a")[1]["href"].strip())  # link
             except:
                 link = "No link found"
 
-            return RottenTomatoesSearchResult(title, link, category, -1, [], -1)
+            return RottenTomatoesSearchResult(title, link, category, -1, [],
+                                              -1)
 
     def _get_results(self, soup, category):
         """
@@ -147,9 +159,11 @@ class RottenTomatoes(SearchEngine):
                 items_c = []
 
                 if c == "Movies" or c == "TV":
-                    items_c = items[i].find_all("li", {"class": "bottom_divider clearfix"})  # items of category
+                    items_c = items[i].find_all("li", {
+                        "class": "bottom_divider clearfix"})  # items of category
                 elif c == "Celebrities" or c == "Critics" or c == "Franchise":
-                    items_c = items[i].find_all("li", {"class": "media bottom_divider"})
+                    items_c = items[i].find_all("li", {
+                        "class": "media bottom_divider"})
 
                 if category == "All" or c == category:  # select only items with given category
                     for item in items_c:
@@ -169,5 +183,6 @@ class RottenTomatoes(SearchEngine):
             Results of query in this search engine.
         """
 
-        search_page = self.get_search_page(query)  # get html source page of results of query
+        search_page = self.get_search_page(
+            query)  # get html source page of results of query
         return self._get_results(BeautifulSoup(search_page, "lxml"), category)

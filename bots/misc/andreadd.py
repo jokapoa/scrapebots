@@ -23,7 +23,8 @@ from urllib.parse import urlparse, urljoin
 from hal.files.models import Directory
 from hal.internet import parser
 from hal.internet import web
-from hal.wrappers.methods import handle_exceptions  # notify user if something goes wrong
+from hal.wrappers.methods import \
+    handle_exceptions  # notify user if something goes wrong
 
 USING_TOR_TO_FETCH_PAGES = False  # use tor to prevent server-side banning
 
@@ -69,11 +70,13 @@ class ADDDocument(URLLink):
             Url to download link
         """
 
-        URLLink.__init__(self, name, url_factory(download_link))  # set name and url fields
+        URLLink.__init__(self, name,
+                         url_factory(download_link))  # set name and url fields
 
         self.name = name
         self.category = category
-        self.download_name = urlparse(download_link).path.split("/")[-1]  # get name of file as saved in server
+        self.download_name = urlparse(download_link).path.split("/")[
+            -1]  # get name of file as saved in server
 
 
 class ADDCourseClass(web.Webpage):
@@ -85,7 +88,8 @@ class ADDCourseClass(web.Webpage):
             Url of main page of class
         """
 
-        web.Webpage.__init__(self, url_factory(url), using_tor=USING_TOR_TO_FETCH_PAGES)
+        web.Webpage.__init__(self, url_factory(url),
+                             using_tor=USING_TOR_TO_FETCH_PAGES)
         self.name = name
 
     @staticmethod
@@ -113,7 +117,8 @@ class ADDCourseClass(web.Webpage):
         return document_list
 
     @staticmethod
-    def get_table_category(table, min_letters_in_category=5, unknown="unsorted"):
+    def get_table_category(table, min_letters_in_category=5,
+                           unknown="unsorted"):
         """
         :param table: soup table
             Table containing list of documents
@@ -158,17 +163,21 @@ class ADDCourseClass(web.Webpage):
             List of downloadable document in class page
         """
 
-        table_list = self.soup.find_all("ul", {"class": "plussbullets"})  # find tables containing documents
+        table_list = self.soup.find_all("ul", {
+            "class": "plussbullets"})  # find tables containing documents
         document_list = []
         for i in range(len(table_list)):  # loop through category tables
-            category = self.get_table_category(table_list[i])  # category table is in
-            table_content = self.get_document_list_from_ul(table_list[i])  # parse content
+            category = self.get_table_category(
+                table_list[i])  # category table is in
+            table_content = self.get_document_list_from_ul(
+                table_list[i])  # parse content
             document_list += [
                 ADDDocument(  # create new add document
                     item.name,  # get name
                     category,  # get category document belongs to
                     urljoin(self.url, item.url)  # fix relative link
-                ) for item in table_content  # loop through list of raw documents
+                ) for item in table_content
+                # loop through list of raw documents
                 ]
 
         return document_list
@@ -183,9 +192,12 @@ class ADDCourseClass(web.Webpage):
 
         documents_list = self.get_documents_list()  # get downloadable documents
         for document in documents_list:
-            document_directory = os.path.join(root_directory, document.category)
-            Directory.create_new(document_directory)  # create directory for this class of documents
-            document.download(os.path.join(document_directory, document.download_name))  # download to local file
+            document_directory = os.path.join(root_directory,
+                                              document.category)
+            Directory.create_new(
+                document_directory)  # create directory for this class of documents
+            document.download(os.path.join(document_directory,
+                                           document.download_name))  # download to local file
 
 
 class ADDExtraCourse(ADDCourseClass):
@@ -212,7 +224,8 @@ class ADDCourse(web.Webpage):
             Url of main page of course
         """
 
-        web.Webpage.__init__(self, url_factory(url), using_tor=USING_TOR_TO_FETCH_PAGES)
+        web.Webpage.__init__(self, url_factory(url),
+                             using_tor=USING_TOR_TO_FETCH_PAGES)
         self.name = name
 
     def __str__(self):
@@ -246,9 +259,13 @@ class ADDCourse(web.Webpage):
 
         course_class_list = self.get_class_list()
         for course_class in course_class_list:
-            course_class_directory = os.path.join(root_directory, str(course_class.get_year()), course_class.name)
-            Directory.create_new(course_class_directory)  # create folder for course class
-            course_class.download_all_documents(course_class_directory)  # download course class documents there
+            course_class_directory = os.path.join(root_directory,
+                                                  str(course_class.get_year()),
+                                                  course_class.name)
+            Directory.create_new(
+                course_class_directory)  # create folder for course class
+            course_class.download_all_documents(
+                course_class_directory)  # download course class documents there
 
 
 class ADDNotes(web.Webpage):
@@ -258,7 +275,8 @@ class ADDNotes(web.Webpage):
             Url of main page of notes
         """
 
-        web.Webpage.__init__(self, url_factory(url), using_tor=USING_TOR_TO_FETCH_PAGES)
+        web.Webpage.__init__(self, url_factory(url),
+                             using_tor=USING_TOR_TO_FETCH_PAGES)
 
     @staticmethod
     def is_extra_course(url):
@@ -281,10 +299,12 @@ class ADDNotes(web.Webpage):
             parse HTML item and find appropriate class to create
         """
 
-        name = parser.html_stripper(course.a.find_all("img")[0]["alt"].title())  # find name of course
+        name = parser.html_stripper(
+            course.a.find_all("img")[0]["alt"].title())  # find name of course
         url = course.a["href"]  # relative link
         url = urljoin(self.url, url)  # complete url
-        return ADDExtraCourse(name, url) if self.is_extra_course(url) else ADDCourse(name, url)
+        return ADDExtraCourse(name, url) if self.is_extra_course(
+            url) else ADDCourse(name, url)
 
     def get_course_list(self):
         """
@@ -294,7 +314,8 @@ class ADDNotes(web.Webpage):
 
         table = self.soup.find_all("table")[0]  # find table of courses
         courses = table.find_all("tr")  # find all rows
-        courses = [self.create_course_from_item_table(course)  # parse raw HTML table item
+        courses = [self.create_course_from_item_table(course)
+                   # parse raw HTML table item
                    for course in courses]  # loop through all items of table
         return courses
 
@@ -310,8 +331,10 @@ def bot():
 
     for course in course_list:
         print("\tSelected course", course.name)
-        course_directory = os.path.join(os.getcwd(), str(int(time.time())), course.name)
-        Directory.create_new(course_directory)  # create new directory for course
+        course_directory = os.path.join(os.getcwd(), str(int(time.time())),
+                                        course.name)
+        Directory.create_new(
+            course_directory)  # create new directory for course
         print("\tDownloading documents to", course_directory, "...")
         course.download_all_documents(course_directory)
 

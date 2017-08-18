@@ -157,7 +157,8 @@ class DuckDuckGoSearchBot(object):
     def _get_name(li):
         """Return the name of a google search."""
 
-        a = li.find_all("h2", {"class": "result__title"})[0].find_all("a", {"class": "result__a"})
+        a = li.find_all("h2", {"class": "result__title"})[0].find_all("a", {
+            "class": "result__a"})
         if a is not None:
             return a.text.strip()
         return None
@@ -166,7 +167,8 @@ class DuckDuckGoSearchBot(object):
     def _get_link(li):
         """Return external link from a search."""
 
-        a = li.find_all("h2", {"class": "result__title"})[0].find_all("a", {"class": "result__a"})
+        a = li.find_all("h2", {"class": "result__title"})[0].find_all("a", {
+            "class": "result__a"})
         if len(a) > 0:
             return a[0]["href"]
         return None
@@ -193,7 +195,8 @@ class DuckDuckGoSearchBot(object):
         )  # wait until fully loaded
         results = []
         soup = BeautifulSoup(html, "lxml")
-        divs = soup.find_all("div", {"id": "links"})[0].find_all("div", {"data-nir": "1"})[:top]
+        divs = soup.find_all("div", {"id": "links"})[0].find_all("div", {
+            "data-nir": "1"})[:top]
         divs = [d.find_all("div", {"class": "result__body"})[0] for d in divs]
         for d in divs:
             name = self._get_name(d)
@@ -254,14 +257,16 @@ class PagineGialleSearchBot(object):
         """
 
         return u"https://www.paginegialle.it/ricerca/" \
-               + str(query).strip().replace(" ", "%20") + "/" + str(address).strip()
+               + str(query).strip().replace(" ", "%20") + "/" + str(
+            address).strip()
 
     @staticmethod
     def get_name(d):
         """ Return the name of a Pagine Gialle """
 
         try:
-            data = d.find_all("div", {"class": "table"})[0].find_all("div", {"class": "elementRowL"})[0]  # table
+            data = d.find_all("div", {"class": "table"})[0].find_all("div", {
+                "class": "elementRowL"})[0]  # table
             data = data.find_all("div", {"class": "elementTop"})[0]  # title
             data = data.find_all("span", {"class": "elementTitle"})[0]
             return data.text.strip()
@@ -273,9 +278,12 @@ class PagineGialleSearchBot(object):
         """Return external link from a search."""
 
         try:
-            data = d.find_all("div", {"class": "table"})[0].find_all("div", {"class": "elementRowL"})[0]  # table
+            data = d.find_all("div", {"class": "table"})[0].find_all("div", {
+                "class": "elementRowL"})[0]  # table
             data = data.find_all("div", {"class": "elementBody"})[0]  # body
-            data = data.find_all("div", {"class": "elementAddress"})[0].find_all("div", {"itemprop": "address"})[0]
+            data = \
+                data.find_all("div", {"class": "elementAddress"})[0].find_all(
+                    "div", {"itemprop": "address"})[0]
             return data.text.strip()
         except:
             return None
@@ -286,9 +294,13 @@ class PagineGialleSearchBot(object):
         TODO: There are some text encoding problems to resolve."""
 
         try:
-            data = d.find_all("div", {"class": "table"})[0].find_all("div", {"class": "elementRowL"})[0]  # table
+            data = d.find_all("div", {"class": "table"})[0].find_all("div", {
+                "class": "elementRowL"})[0]  # table
             data = data.find_all("div", {"class": "elementBody"})[0]  # body
-            data = data.find_all("div", {"class": "elementPhoneCont"})[0].find_all("div", {"class": "elementPhone"})[0]
+            data = \
+                data.find_all("div", {"class": "elementPhoneCont"})[
+                    0].find_all(
+                    "div", {"class": "elementPhone"})[0]
             return data.text.strip()
         except:
             return None
@@ -302,7 +314,8 @@ class PagineGialleSearchBot(object):
 
         results = []
         soup = BeautifulSoup(html, "lxml")
-        results_div = soup.find_all("div", {"class": "listElementsInnerWrapper"})
+        results_div = soup.find_all("div",
+                                    {"class": "listElementsInnerWrapper"})
         if len(results_div) > 0:
             results_div = results_div[0]
             divs = results_div.find_all("div", {"class": "vcard"})
@@ -331,7 +344,8 @@ class PagineGialleSearchBot(object):
             self.browser.get(
                 self._get_search_url(query, address)
             )
-            WebDriverWait(self.browser, self.BROWSER_WAIT_TIMEOUT_SECONDS).until(
+            WebDriverWait(self.browser,
+                          self.BROWSER_WAIT_TIMEOUT_SECONDS).until(
                 EC.presence_of_element_located((By.ID, "headSearchBar"))
             )  # wait until fully loaded
             results = self.parse_page_results(self.browser.page_source)

@@ -39,7 +39,8 @@ def get_url_of_page(p):
         Url of selected page
     """
 
-    return BASE_URL + "geteventlist.php?year=all&dist=all&country=all&page=" + str(p)
+    return BASE_URL + "geteventlist.php?year=all&dist=all&country=all&page=" + str(
+        p)
 
 
 def create_args():
@@ -48,8 +49,10 @@ def create_args():
         Parser that handles cmd arguments.
     """
 
-    parser = argparse.ArgumentParser(usage="-of <path to file to dump data to>")
-    parser.add_argument("-f", dest="path_file", help="path to output file", required=True)
+    parser = argparse.ArgumentParser(
+        usage="-of <path to file to dump data to>")
+    parser.add_argument("-f", dest="path_file", help="path to output file",
+                        required=True)
     return parser
 
 
@@ -119,8 +122,10 @@ def get_list_of_races(list_of_pages):
 async def fetch(u):
     try:
         conn = ProxyConnector(remote_resolve=True)
-        async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest) as session:
-            async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
+        async with aiohttp.ClientSession(connector=conn,
+                                         request_class=ProxyClientRequest) as session:
+            async with session.get(u,
+                                   proxy="socks5://127.0.0.1:9150") as response:
                 print_time_eta(
                     get_time_eta(
                         len(raw_sources),
@@ -161,12 +166,14 @@ if __name__ == '__main__':
     if check_args(path_out):
         raw_sources = []  # list of raw HTML pages to parse
         total_pages = 38
-        pages_to_fetch = [get_url_of_page(p) for p in range(1, total_pages + 1)]  # urls of pages to fetch
+        pages_to_fetch = [get_url_of_page(p) for p in
+                          range(1, total_pages + 1)]  # urls of pages to fetch
         start_time = time.time()
 
         print("Fetching HTML pages")
         loop = asyncio.get_event_loop()
-        future = asyncio.ensure_future(fetch_urls(pages_to_fetch))  # fetch sources
+        future = asyncio.ensure_future(
+            fetch_urls(pages_to_fetch))  # fetch sources
         loop.run_until_complete(future)
         loop.close()
 
@@ -175,7 +182,8 @@ if __name__ == '__main__':
 
         keys = details[0].keys()
         with open(path_out, "w") as output_file:
-            dict_writer = csv.DictWriter(output_file, keys, quotechar="\"", delimiter=",")
+            dict_writer = csv.DictWriter(output_file, keys, quotechar="\"",
+                                         delimiter=",")
             dict_writer.writeheader()
             dict_writer.writerows(details)
         print("Output data written to", path_out)

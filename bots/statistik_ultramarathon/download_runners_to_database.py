@@ -35,7 +35,8 @@ WEBPAGE_COOKIES = {
     "Language": "EN"
 }  # set language
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        str(os.path.basename(__file__)).split(".")[0] + "-" + str(int(time.time())) + ".log")
+                        str(os.path.basename(__file__)).split(".")[
+                            0] + "-" + str(int(time.time())) + ".log")
 MIN_RUNNER_PAGE = 1  # minimum page where to find runner
 MAX_RUNNER_PAGE = 946959  # maximum page where to find runner
 
@@ -74,9 +75,11 @@ async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
     for _ in range(max_attempts):
         try:
             conn = ProxyConnector(remote_resolve=True)
-            async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest,
+            async with aiohttp.ClientSession(connector=conn,
+                                             request_class=ProxyClientRequest,
                                              cookies=WEBPAGE_COOKIES) as session:
-                async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:
+                async with session.get(u,
+                                       proxy="socks5://127.0.0.1:9150") as response:
                     body = await response.text()
                     raw_sources.append({
                         "url": str(u),
@@ -117,7 +120,8 @@ async def fetch_urls(list_of_urls, max_concurrent=1000):
 if __name__ == "__main__":
     start_time_overall = time.time()
     urls_list = [get_url_of_page(p) for p in
-                 range(MIN_RUNNER_PAGE, MAX_RUNNER_PAGE + 1)]  # get list of urls    
+                 range(MIN_RUNNER_PAGE,
+                       MAX_RUNNER_PAGE + 1)]  # get list of urls
     total = len(urls_list)
     raw_sources = []  # list of raw HTML pages to parse
 
@@ -166,8 +170,12 @@ if __name__ == "__main__":
     delta_mem_overall = get_memory_usage()
 
     print(
-        "Done fetching and saving data to mongodb database \"" + str(DATABASE_NAME) + "\". Job started at",
-        datetime.fromtimestamp(start_time_overall).strftime("%Y-%m-%d %H:%M:%S"), "completed at",
-        datetime.fromtimestamp(end_time_overall).strftime("%Y-%m-%d %H:%M:%S"), ", took",
-        str(timedelta(seconds=int(delta_time_overall))), "and ~", str(delta_mem_overall), "MB to complete."
+        "Done fetching and saving data to mongodb database \"" + str(
+            DATABASE_NAME) + "\". Job started at",
+        datetime.fromtimestamp(start_time_overall).strftime(
+            "%Y-%m-%d %H:%M:%S"), "completed at",
+        datetime.fromtimestamp(end_time_overall).strftime("%Y-%m-%d %H:%M:%S"),
+        ", took",
+        str(timedelta(seconds=int(delta_time_overall))), "and ~",
+        str(delta_mem_overall), "MB to complete."
     )  # debug info

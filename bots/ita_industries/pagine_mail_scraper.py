@@ -61,8 +61,12 @@ async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
     for _ in range(max_attempts):
         try:
             conn = ProxyConnector(remote_resolve=True)
-            async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest) as session:
-                async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:  # use tor
+            async with aiohttp.ClientSession(
+                    connector=conn, request_class=ProxyClientRequest
+            ) as session:
+                async with session.get(
+                        u, proxy="socks5://127.0.0.1:9150"
+                ) as response:  # use tor
                     body = await response.text()  # encoding='latin-1'
                     raw_sources.append(body)  # add url and page source
                     print_time_eta(
@@ -197,12 +201,14 @@ if __name__ == "__main__":
     raw_sources = []  # list of scraped HTML pages content
     ind_urls_list = []  # list of urls of industries found
     urls_list = [str(l).strip() for l in
-                 open(INPUT_FILE, "r").readlines()]  # get_urls_in_page(start_page_html)  # first list of url to scrape
+                 open(INPUT_FILE,
+                      "r").readlines()]  # get_urls_in_page(start_page_html)  # first list of url to scrape
 
     total = len(urls_list)
     start_time = time.time()
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(async_fetch_urls(urls_list))  # fetch sources
+    future = asyncio.ensure_future(
+        async_fetch_urls(urls_list))  # fetch sources
     loop.run_until_complete(future)
     urls_list = []  # empty urls list (all found)
 
@@ -214,7 +220,8 @@ if __name__ == "__main__":
     total = len(urls_list)
     start_time = time.time()
     loop = asyncio.get_event_loop()
-    future = asyncio.ensure_future(async_fetch_urls(urls_list))  # fetch sources
+    future = asyncio.ensure_future(
+        async_fetch_urls(urls_list))  # fetch sources
     loop.run_until_complete(future)
 
     for h in raw_sources:

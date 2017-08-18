@@ -28,22 +28,33 @@ from pyrottentomatoes import models
 def parse_args():
     """ raise errors if args do not match parameters """
     parser = argparse.ArgumentParser(usage="-q query\n-h for full usage")
-    parser.add_argument("-q", dest="query", help="query, keywords to crawl RottenTomatoes about", required=True)
-    parser.add_argument("-c", dest="category", help="category in [all, Franchise, Movies, TV, Celebrities, Critics]",
+    parser.add_argument("-q", dest="query",
+                        help="query, keywords to crawl RottenTomatoes about",
+                        required=True)
+    parser.add_argument("-c", dest="category",
+                        help="category in [all, Franchise, Movies, TV, Celebrities, Critics]",
                         required=False)
-    parser.add_argument("-y", dest="year", help="consider results only in given year", required=False)
-    parser.add_argument("-after", dest="after", help="consider results only that are produced after given year",
+    parser.add_argument("-y", dest="year",
+                        help="consider results only in given year",
                         required=False)
-    parser.add_argument("-before", dest="before", help="consider results only that are produced before given year",
+    parser.add_argument("-after", dest="after",
+                        help="consider results only that are produced after given year",
                         required=False)
-    parser.add_argument("-m", dest="max_results", help="max number of results to display", required=False)
+    parser.add_argument("-before", dest="before",
+                        help="consider results only that are produced before given year",
+                        required=False)
+    parser.add_argument("-m", dest="max_results",
+                        help="max number of results to display",
+                        required=False)
     args = parser.parse_args()
 
     assert (isinstance(args.query, type("string")))
 
     if not args.category:
         args.category = "all"
-    assert (args.category in ["all", "Franchise", "Movies", "TV", "Celebrities", "Critics"])
+    assert (
+        args.category in ["all", "Franchise", "Movies", "TV", "Celebrities",
+                          "Critics"])
 
     if args.after:
         args.after = int(args.after)
@@ -52,7 +63,8 @@ def parse_args():
         args.before = int(args.before)
 
         if args.after:
-            assert (args.before >= args.after)  # this way we have intersection of results
+            assert (
+                args.before >= args.after)  # this way we have intersection of results
 
     if args.year:
         args.year = int(args.year)
@@ -105,7 +117,9 @@ def parse_results(results, year, after, before):
 
 
 def print_rt_info(result, category):
-    assert (category in ["all", "Franchise", "Movies", "TV", "Celebrities", "Critics"])
+    assert (
+        category in ["all", "Franchise", "Movies", "TV", "Celebrities",
+                     "Critics"])
 
     url = result.link
     print("\nInfo about \"" + str(result.title) + "\":")
@@ -122,7 +136,8 @@ def print_rt_info(result, category):
         print("\tAverage rating:", str(tmeter_info["avg_rating"]), "/10")
         print("- Audience:")
         print("\tLiked it:", str(audience_meter_info["score"]), "%")
-        print("\tAverage rating:", str(audience_meter_info["avg_rating"]), "/5")
+        print("\tAverage rating:", str(audience_meter_info["avg_rating"]),
+              "/5")
         print("- Critics review:", critics_review)
         print("- Plot:", str(movie_info["plot"]))
         print("- R:", str(movie_info["r"]))
@@ -165,7 +180,8 @@ def main():
 
     if len(results) > 0:
         print("\n\n".join([
-                              str(results.index(x) + 1) + " - Title: " + x.title +
+                              str(results.index(
+                                  x) + 1) + " - Title: " + x.title +
                               "\nLink: " + x.link +
                               "\nCategory: " + x.category +
                               "\nYear: " + str(x.year) +
@@ -174,10 +190,12 @@ def main():
                               for x in results]))
 
         user_answer = input(
-            "More info about result " + str([i + 1 for i in range(len(results))]) + "? or any other key to quit: ")
+            "More info about result " + str([i + 1 for i in range(
+                len(results))]) + "? or any other key to quit: ")
         try:
             user_answer = int(user_answer)
-            print_rt_info(results[user_answer - 1], results[user_answer - 1].category)
+            print_rt_info(results[user_answer - 1],
+                          results[user_answer - 1].category)
         except:  # answer is not a integer -> exit
             return
 

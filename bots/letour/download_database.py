@@ -28,17 +28,20 @@ from hal.profile.mem import get_memory_usage, force_garbage_collect
 from hal.time.profile import print_time_eta, get_time_eta
 from pymongo import MongoClient
 
-from .parsers import get_url_of_page, get_list_of_stages, get_standings_of_stage, get_stage_details_from_url
+from .parsers import get_url_of_page, get_list_of_stages, \
+    get_standings_of_stage, get_stage_details_from_url
 
 LOG_FILE = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                        str(os.path.basename(__file__)).split(".")[0] + "-" + str(int(time.time())) + ".log")
+                        str(os.path.basename(__file__)).split(".")[
+                            0] + "-" + str(int(time.time())) + ".log")
 MIN_YEAR_PAGE = 1903  # minimum year of tour
 MAX_YEAR_PAGE = 2016  # maximum year of tour
 
 DATABASE_NAME = "letour-stages"  # name of mongodb database to use
 mongodb_client = MongoClient()  # mongodb client
 # mongodb_client.drop_database(DATABASE_NAME)  # remove all previous data in database
-db = mongodb_client[DATABASE_NAME]  # database to use (will have a coll for each year, each coll will have stages list)
+db = mongodb_client[
+    DATABASE_NAME]  # database to use (will have a coll for each year, each coll will have stages list)
 for c in db.collection_names():
     db[c].create_index("num", unique=True)  # set primary key
 
@@ -58,8 +61,10 @@ async def try_and_fetch(u, max_attempts=8, time_delay_between_attempts=1):
     for _ in range(max_attempts):
         try:
             conn = ProxyConnector(remote_resolve=True)
-            async with aiohttp.ClientSession(connector=conn, request_class=ProxyClientRequest) as session:
-                async with session.get(u, proxy="socks5://127.0.0.1:9150") as response:  # use tor
+            async with aiohttp.ClientSession(connector=conn,
+                                             request_class=ProxyClientRequest) as session:
+                async with session.get(u,
+                                       proxy="socks5://127.0.0.1:9150") as response:  # use tor
                     body = await response.text(encoding='latin-1')
                     raw_sources.append({
                         "url": str(u),
@@ -181,8 +186,12 @@ if __name__ == "__main__":
     delta_mem_overall = get_memory_usage()
 
     print(
-        "Done downloading and saving data to mongodb database \"" + str(DATABASE_NAME) + "\". Job started at",
-        datetime.fromtimestamp(start_time_overall).strftime("%Y-%m-%d %H:%M:%S"), "completed at",
-        datetime.fromtimestamp(end_time_overall).strftime("%Y-%m-%d %H:%M:%S"), ", took",
-        str(timedelta(seconds=int(delta_time_overall))), "and ~", str(delta_mem_overall), "MB to complete."
+        "Done downloading and saving data to mongodb database \"" + str(
+            DATABASE_NAME) + "\". Job started at",
+        datetime.fromtimestamp(start_time_overall).strftime(
+            "%Y-%m-%d %H:%M:%S"), "completed at",
+        datetime.fromtimestamp(end_time_overall).strftime("%Y-%m-%d %H:%M:%S"),
+        ", took",
+        str(timedelta(seconds=int(delta_time_overall))), "and ~",
+        str(delta_mem_overall), "MB to complete."
     )  # debug info

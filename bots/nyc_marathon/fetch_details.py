@@ -29,9 +29,13 @@ def create_args():
         Parser that handles cmd arguments.
     """
 
-    parser = argparse.ArgumentParser(usage="-y <years to fetch> -o <path to output folder>")
-    parser.add_argument("-y", dest="years", help="e.g '2017', '2014-2017', '2014,2016,2017'", required=True)
-    parser.add_argument("-o", dest="path_out", help="path to output folder", required=True)
+    parser = argparse.ArgumentParser(
+        usage="-y <years to fetch> -o <path to output folder>")
+    parser.add_argument("-y", dest="years",
+                        help="e.g '2017', '2014-2017', '2014,2016,2017'",
+                        required=True)
+    parser.add_argument("-o", dest="path_out", help="path to output folder",
+                        required=True)
     return parser
 
 
@@ -49,7 +53,8 @@ def parse_args(parser):
     try:
         if years.find(",") > 0:  # multiple years
             years = years.split(",")  # tokenize
-            years = [str(y).strip() for y in years if len(y) >= 4]  # strip and discard null values
+            years = [str(y).strip() for y in years if
+                     len(y) >= 4]  # strip and discard null values
             years = [int(y) for y in years]  # parse
         elif years.find("-") > 0:  # years range
             min_year = int(years.split("-")[0])

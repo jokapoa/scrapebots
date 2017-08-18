@@ -20,7 +20,8 @@ from datetime import datetime, timedelta
 
 from bs4 import BeautifulSoup
 
-VALUE_NOT_FOUND = str("DNF")  # value to put when data cannot be found (or some errors occur)
+VALUE_NOT_FOUND = str(
+    "DNF")  # value to put when data cannot be found (or some errors occur)
 
 
 def get_url_of_page(y, base_url="http://www.letour.fr/HISTO/us/TDF/"):
@@ -94,20 +95,25 @@ def get_standings_of_stage(raw_html):
 
     if "etape" in rows[1].find("td").text.lower():
         rows = rows[2:]  # discard header
-        non_stage_rows = [r for r in rows if "tr class=\"strong\"" in str(r)]  # rows that do not have stage standings
+        non_stage_rows = [r for r in rows if "tr class=\"strong\"" in str(
+            r)]  # rows that do not have stage standings
         try:
-            end_rows = rows.index(non_stage_rows[0])  # data rows ends at this index
+            end_rows = rows.index(
+                non_stage_rows[0])  # data rows ends at this index
             rows = rows[:end_rows]
 
             for r in rows:
                 try:
                     columns = r.find_all("td")
-                    columns = [str(c.text.replace("\\\'", "'").replace("\\t", "").replace("\\n", "").strip()) for c in
+                    columns = [str(
+                        c.text.replace("\\\'", "'").replace("\\t", "").replace(
+                            "\\n", "").strip()) for c in
                                columns]  # parse
                     athlete_time = columns[3]  # TODO
                     if athlete_time.startswith("+"):
                         try:
-                            athlete_time = datetime.strptime(athlete_time, '+ %M\' %S"')
+                            athlete_time = datetime.strptime(athlete_time,
+                                                             '+ %M\' %S"')
                             athlete_time = timedelta(
                                 hours=athlete_time.hour,
                                 minutes=athlete_time.minute,
@@ -115,7 +121,8 @@ def get_standings_of_stage(raw_html):
                             )
                         except:
                             try:
-                                athlete_time = datetime.strptime(athlete_time, '+ %Hh %M\' %S"')
+                                athlete_time = datetime.strptime(athlete_time,
+                                                                 '+ %Hh %M\' %S"')
                                 athlete_time = timedelta(
                                     hours=athlete_time.hour,
                                     minutes=athlete_time.minute,
@@ -125,7 +132,8 @@ def get_standings_of_stage(raw_html):
                                 athlete_time = VALUE_NOT_FOUND
                     else:  # this is the winner time
                         try:
-                            athlete_time = datetime.strptime(athlete_time, '%Hh %M\' %S\"')
+                            athlete_time = datetime.strptime(athlete_time,
+                                                             '%Hh %M\' %S\"')
                             athlete_time = timedelta(
                                 hours=athlete_time.hour,
                                 minutes=athlete_time.minute,
@@ -133,7 +141,8 @@ def get_standings_of_stage(raw_html):
                             )
                         except:
                             try:
-                                athlete_time = datetime.strptime(athlete_time, '%M\' %S"')
+                                athlete_time = datetime.strptime(athlete_time,
+                                                                 '%M\' %S"')
                                 athlete_time = timedelta(
                                     hours=athlete_time.hour,
                                     minutes=athlete_time.minute,

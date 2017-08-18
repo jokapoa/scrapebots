@@ -106,12 +106,14 @@ class AthletePerformance(object):
         """
 
         try:
-            self.first_name = get_text_or_dnf(columns[headers.index("First Name")])
+            self.first_name = get_text_or_dnf(
+                columns[headers.index("First Name")])
         except:
             pass
 
         try:
-            self.last_name = get_text_or_dnf(columns[headers.index("Last Name")])
+            self.last_name = get_text_or_dnf(
+                columns[headers.index("Last Name")])
         except:
             pass
 
@@ -139,7 +141,8 @@ class AthletePerformance(object):
             pass
 
         try:
-            self.nationality = get_text_or_dnf(columns[headers.index("Citizenship")])
+            self.nationality = get_text_or_dnf(
+                columns[headers.index("Citizenship")])
         except:
             pass
 
@@ -159,12 +162,14 @@ class AthletePerformance(object):
             pass
 
         try:
-            self.place_gender = get_text_or_dnf(columns[headers.index("GenderPlace")])
+            self.place_gender = get_text_or_dnf(
+                columns[headers.index("GenderPlace")])
         except:
             pass
 
         try:
-            self.place_age = get_text_or_dnf(columns[headers.index("AgePlace")])
+            self.place_age = get_text_or_dnf(
+                columns[headers.index("AgePlace")])
         except:
             pass
 
@@ -209,7 +214,8 @@ class AthletePerformance(object):
             pass
 
         try:
-            self.split_HALF = get_text_or_dnf(columns[headers.index("13.1 mi")])
+            self.split_HALF = get_text_or_dnf(
+                columns[headers.index("13.1 mi")])
         except:
             pass
 
@@ -244,12 +250,14 @@ class AthletePerformance(object):
         """
 
         try:
-            self.age_graded_time = get_text_or_dnf(columns[headers.index("Age-GradedTime")])
+            self.age_graded_time = get_text_or_dnf(
+                columns[headers.index("Age-GradedTime")])
         except:
             pass
 
         try:
-            self.age_graded_performance = get_text_or_dnf(columns[headers.index("Age-GradedPerformance %")])
+            self.age_graded_performance = get_text_or_dnf(
+                columns[headers.index("Age-GradedPerformance %")])
         except:
             pass
 
@@ -301,7 +309,8 @@ class NYCMarathonBot(object):
 
         object.__init__(self)
         self.browser = webdriver.Firefox()
-        self.browser.set_page_load_timeout(self.BROWSER_WAIT_TIMEOUT_SECONDS)  # seconds
+        self.browser.set_page_load_timeout(
+            self.BROWSER_WAIT_TIMEOUT_SECONDS)  # seconds
 
     def go_to_archive_search_form(self):
         """
@@ -325,13 +334,18 @@ class NYCMarathonBot(object):
 
         self.go_to_archive_search_form()
         self.browser.execute_script(
-            "document.getElementsByName(\"input.searchyear\")[0].value = \"" + str(year) + "\"")  # choose year
+            "document.getElementsByName(\"input.searchyear\")[0].value = \"" + str(
+                year) + "\"")  # choose year
 
-        self.browser.execute_script("document.getElementsByTagName(\"input\")[9].checked = true")  # check age method
-        self.browser.execute_script("document.getElementsByName(\"input.f.age\")[0].value = \"0\"")  # choose min age
-        self.browser.execute_script("document.getElementsByName(\"input.t.age\")[0].value = \"99\"")  # choose max age
+        self.browser.execute_script(
+            "document.getElementsByTagName(\"input\")[9].checked = true")  # check age method
+        self.browser.execute_script(
+            "document.getElementsByName(\"input.f.age\")[0].value = \"0\"")  # choose min age
+        self.browser.execute_script(
+            "document.getElementsByName(\"input.t.age\")[0].value = \"99\"")  # choose max age
 
-        self.browser.execute_script("document.getElementsByTagName(\"form\")[0].submit()")  # submit form
+        self.browser.execute_script(
+            "document.getElementsByTagName(\"form\")[0].submit()")  # submit form
         time.sleep(self.BROWSER_WAIT_TIMEOUT_SECONDS)
 
     def get_raw_data(self):
@@ -392,11 +406,13 @@ class NYCMarathonBot(object):
 
                 print_time_eta(
                     get_time_eta(
-                        fetched_data_counter, TOTAL_RUNNERS_IN_ONE_EVENT, start_time
+                        fetched_data_counter, TOTAL_RUNNERS_IN_ONE_EVENT,
+                        start_time
                     )
                 )  # debug info
             except Exception as e:
-                print("\n\t!!!!!!!!!!!!!!!!!!!!\n\t", str(e), "\n\t!!!!!!!!!!!!!!!!!!!!\n\t\n")
+                print("\n\t!!!!!!!!!!!!!!!!!!!!\n\t", str(e),
+                      "\n\t!!!!!!!!!!!!!!!!!!!!\n\t\n")
                 keep_going = False
 
         self.browser.close()  # close browser
@@ -426,13 +442,17 @@ class NYCMarathonParser(object):
 
         soup = BeautifulSoup(self.data_table, "lxml")  # html parser
         rows = soup.find_all("tr")[1:]  # discard headers
-        headers = [h.text for h in soup.find_all("table")[0].find_all("tr")[0].find_all("td")]  # column names
+        headers = [h.text for h in
+                   soup.find_all("table")[0].find_all("tr")[0].find_all(
+                       "td")]  # column names
         headers = [
             "".join(c for c in h if c in string.printable) for h in headers
             ]  # convert to unicode utf-8
 
-        index_country = [i for i in range(len(headers)) if headers[i].startswith("Country of")][0]
-        headers.insert(index_country + 1, "Citizenship")  # add citizenship missing header
+        index_country = [i for i in range(len(headers)) if
+                         headers[i].startswith("Country of")][0]
+        headers.insert(index_country + 1,
+                       "Citizenship")  # add citizenship missing header
 
         results = []
         for r in rows:
@@ -443,7 +463,7 @@ class NYCMarathonParser(object):
 
 
 class StreamsBot(object):
-    """ I/O on (generally) files with data about the London Marathon"""
+    """ I/O on (generally) files with data about the NYC Marathon"""
 
     def __init__(self, file_path):
         object.__init__(self)
@@ -467,8 +487,10 @@ class StreamsBot(object):
             Reads from .csv file and returns list of url of results of year
         """
 
-        d = pandas.DataFrame.from_csv(self.file_path, sep=",").to_dict()  # turn file into dict
-        big_dict = list(d.values())[0]  # get raw values (big dataframe dictionary <i, value>
+        d = pandas.DataFrame.from_csv(self.file_path,
+                                      sep=",").to_dict()  # turn file into dict
+        big_dict = list(d.values())[
+            0]  # get raw values (big dataframe dictionary <i, value>
         values = [str(v).strip() for v in big_dict.values()]  # get real value
         return values
 
@@ -482,6 +504,7 @@ class StreamsBot(object):
 
         csv_headers = dicts[0].keys()
         with open(self.file_path, "w") as o:  # write to file
-            dict_writer = csv.DictWriter(o, csv_headers, delimiter=",", quotechar="\"")
+            dict_writer = csv.DictWriter(o, csv_headers, delimiter=",",
+                                         quotechar="\"")
             dict_writer.writeheader()
             dict_writer.writerows(dicts)

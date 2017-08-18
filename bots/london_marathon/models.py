@@ -73,7 +73,8 @@ class AthletePerformance(object):
             if self.url is None:
                 self.raw_html = None
             else:
-                self.raw_html = Webpage(self.url).get_html_source(tor=True)  # get html source of url
+                self.raw_html = Webpage(self.url).get_html_source(
+                    tor=True)  # get html source of url
 
     def parse_details(self):
         """
@@ -83,11 +84,14 @@ class AthletePerformance(object):
 
         self.get_raw_html()  # get HTML page source
         soup = BeautifulSoup(self.raw_html, "lxml")  # HTML parser
-        details_tables = soup.find_all("table", {"class": "list-table names"})  # tables with details about competition
+        details_tables = soup.find_all("table", {
+            "class": "list-table names"})  # tables with details about competition
 
         if self.url is None:
             try:
-                event_id = soup.find_all("a", {"class": "active nav-pid-start"})[0]["href"].split("/?event=")[-1]
+                event_id = \
+                    soup.find_all("a", {"class": "active nav-pid-start"})[0][
+                        "href"].split("/?event=")[-1]
                 event_id = event_id.split("&")[0]
                 self.event_id = event_id
             except:
@@ -129,8 +133,10 @@ class AthletePerformance(object):
 
         try:
             raw_name = rows[0].find_all("td")[-1].text
-            surname_name = raw_name.split("(")[0].strip().replace(",", "")  # remove middle , to separate surname name
-            nationality = raw_name.split("(")[-1].strip().replace(")", "")  # remove trailing )
+            surname_name = raw_name.split("(")[0].strip().replace(",",
+                                                                  "")  # remove middle , to separate surname name
+            nationality = raw_name.split("(")[-1].strip().replace(")",
+                                                                  "")  # remove trailing )
             self.surname_name = str(surname_name).strip()
             self.nationality = str(nationality).strip()
         except:
@@ -199,7 +205,8 @@ class AthletePerformance(object):
             rows = []
 
         try:
-            self.race_finished = str("Finished" == str(rows[0].find_all("td")[-1].text)).strip()
+            self.race_finished = str(
+                "Finished" == str(rows[0].find_all("td")[-1].text)).strip()
         except:
             self.place_mv = str(VALUE_NOT_FOUND)
 
@@ -334,7 +341,8 @@ class LondonMarathonBot(object):
             Url with year data
         """
 
-        return "http://results-" + str(year) + ".virginmoneylondonmarathon.com/" + str(year)
+        return "http://results-" + str(
+            year) + ".virginmoneylondonmarathon.com/" + str(year)
 
     @staticmethod
     def get_result_urls_from_page_source(page_source):
@@ -348,9 +356,12 @@ class LondonMarathonBot(object):
         results = []
         try:
             soup = BeautifulSoup(page_source, "lxml")  # HTML parser
-            table = soup.find_all("div", {"class": "list"})[0]  # table with results
-            table = table.find_all("table", {"class": "list-table"})[0]  # discard jibberish
-            table_rows = table.find_all("tr")[1:]  # find rows of table (discard header)
+            table = soup.find_all("div", {"class": "list"})[
+                0]  # table with results
+            table = table.find_all("table", {"class": "list-table"})[
+                0]  # discard jibberish
+            table_rows = table.find_all("tr")[
+                         1:]  # find rows of table (discard header)
             for row in table_rows:
                 url = row.find_all("td")[3].a["href"]  # find url of result
                 results.append(url)  # add url to results
@@ -391,15 +402,19 @@ class LondonMarathonBot(object):
             keep_getting_data = True  # flag for when to stop
             while keep_getting_data:
                 base_url = self.get_url_of_year(year)
-                url = self.get_url_of_event_in_year(year, e, page=page)  # url to scrape data
+                url = self.get_url_of_event_in_year(year, e,
+                                                    page=page)  # url to scrape data
                 page_source = Webpage(url).get_html_source()  # get raw HTML
                 results = self.get_result_urls_from_page_source(page_source)
-                results = [base_url + str(r).strip() for r in results]  # add base url (to relative result)
+                results = [base_url + str(r).strip() for r in
+                           results]  # add base url (to relative result)
                 data += results  # add results
-                keep_getting_data = (len(results) > 0)  # go to next page if there is data on this page
+                keep_getting_data = (len(
+                    results) > 0)  # go to next page if there is data on this page
                 page += 1
 
-                print(str(len(results)), "results from", str(e), str(year), "event (page",
+                print(str(len(results)), "results from", str(e), str(year),
+                      "event (page",
                       str(page - 1) + ")")  # debug info
 
         return data
@@ -414,7 +429,8 @@ class LondonMarathonBot(object):
 
         db_years = {}
         for year in years:
-            db_years[str(year)] = self.get_urls_of_year(year)  # add data of year
+            db_years[str(year)] = self.get_urls_of_year(
+                year)  # add data of year
         return db_years
 
     @staticmethod
@@ -473,8 +489,10 @@ class StreamsBot(object):
             Reads from .csv file and returns list of url of results of year
         """
 
-        d = pandas.DataFrame.from_csv(self.file_path, sep=",").to_dict()  # turn file into dict
-        big_dict = list(d.values())[0]  # get raw values (big dataframe dictionary <i, value>
+        d = pandas.DataFrame.from_csv(self.file_path,
+                                      sep=",").to_dict()  # turn file into dict
+        big_dict = list(d.values())[
+            0]  # get raw values (big dataframe dictionary <i, value>
         values = [str(v).strip() for v in big_dict.values()]  # get real value
         return values
 
@@ -488,6 +506,7 @@ class StreamsBot(object):
 
         csv_headers = dicts[0].keys()
         with open(self.file_path, "w") as o:  # write to file
-            dict_writer = csv.DictWriter(o, csv_headers, delimiter=",", quotechar="\"")
+            dict_writer = csv.DictWriter(o, csv_headers, delimiter=",",
+                                         quotechar="\"")
             dict_writer.writeheader()
             dict_writer.writerows(dicts)
