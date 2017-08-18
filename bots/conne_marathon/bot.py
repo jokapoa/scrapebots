@@ -16,6 +16,8 @@
 # limitations under the License.
 
 
+""" Actual scraper of Conne marathon webpage """
+
 import argparse
 import os
 
@@ -32,9 +34,13 @@ def create_args():
         Parser that handles cmd arguments.
     """
 
-    parser = argparse.ArgumentParser(usage="-y <years to fetch> -o <path to output folder>")
-    parser.add_argument("-y", dest="years", help="e.g '2017', '2014-2017', '2014,2016,2017'", required=True)
-    parser.add_argument("-o", dest="path_out", help="path to output folder", required=True)
+    parser = argparse.ArgumentParser(
+        usage="-y <years to fetch> -o <path to output folder>")
+    parser.add_argument("-y", dest="years",
+                        help="e.g '2017', '2014-2017', '2014,2016,2017'",
+                        required=True)
+    parser.add_argument("-o", dest="path_out", help="path to output folder",
+                        required=True)
     return parser
 
 
@@ -52,7 +58,8 @@ def parse_args(parser):
     try:
         if years.find(",") > 0:  # multiple years
             years = years.split(",")  # tokenize
-            years = [str(y).strip() for y in years if len(y) >= 4]  # strip and discard null values
+            years = [str(y).strip() for y in years if
+                     len(y) >= 4]  # strip and discard null values
             years = [int(y) for y in years]  # parse
         elif years.find("-") > 0:  # years range
             min_year = int(years.split("-")[0])
@@ -76,8 +83,7 @@ def check_args(years, path_out):
         True iff args are correct
     """
 
-    assert (years is not None)
-    assert (len(years) > 0)
+    assert years  # non empty and not null
 
     out_dir = os.path.dirname(path_out)
     if not os.path.exists(out_dir):
@@ -96,21 +102,22 @@ def download_year_results(year, out_path):
         Saves data to file
     """
 
-    w = Webpage(RESULTS_PAGE_URL)
-    soup = BeautifulSoup(w.get_html_source(), "lxml")
+    web_page = Webpage(RESULTS_PAGE_URL)
+    soup = BeautifulSoup(web_page.get_html_source(), "lxml")
     table = soup.find_all("table")[0]
     rows = table.find_all("tr")[1:]  # discard header
     rows.reverse()  # start from min year to present
-    row_of_year = rows[year - MIN_YEAR]  # row where to find results of given year
+    row_of_year = rows[
+        year - MIN_YEAR]  # row where to find results of given year
     columns = row_of_year.find_all("td")
-    for c in columns:
+    for column in columns:
         try:
-            link = c.a["href"]
+            link = column.a["href"]
             file_name = link.split("/")[-1]
             out_file = os.path.join(out_path, file_name)
             download_pdf_to_file(link, out_file)  # download
-        except Exception as e:  # column has no link
-            print(str(e))
+        except Exception as exception:  # column has no link
+            print(str(exception))
 
 
 def download_years_results(years, out_path):
@@ -123,8 +130,8 @@ def download_years_results(years, out_path):
         Saves data to file
     """
 
-    for y in years:
-        download_year_results(y, out_path)
+    for year in years:
+        download_year_results(year, out_path)
 
 
 def download_results_in_range(min_y, max_y, out_path):
@@ -139,11 +146,16 @@ def download_results_in_range(min_y, max_y, out_path):
         Saves data to file
     """
 
-    for y in range(min_y, max_y + 1):
-        download_year_results(y, out_path)
+    for year in range(min_y, max_y + 1):
+        download_year_results(year, out_path)
 
 
 def main():
+    """
+    :return: void
+        Downloads results of years in given range
+    """
+
     years, path_out = parse_args(create_args())
     if check_args(years, path_out):
         download_years_results(years, path_out)

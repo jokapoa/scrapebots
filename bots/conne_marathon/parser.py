@@ -16,6 +16,8 @@
 # limitations under the License.
 
 
+""" Tools to parse Conne marathon webpage """
+
 import argparse
 import os
 
@@ -32,7 +34,8 @@ def create_args():
     """
 
     parser = argparse.ArgumentParser(usage="-of <path to file to parse>")
-    parser.add_argument("-f", dest="path_file", help="path to file", required=True)
+    parser.add_argument("-f", dest="path_file", help="path to file",
+                        required=True)
     return parser
 
 
@@ -60,48 +63,48 @@ def check_args(path_file):
     return True
 
 
-def get_tokens(l):
+def get_tokens(line):
     """
-    :param l: str
+    :param line: str
         Line of file to parse
     :return: [] of str
         Tokens of line
     """
 
-    tokens = l.strip().split(" ")
+    tokens = line.strip().split(" ")
     tokens = [t.strip() for t in tokens if len(t) > 0]
     return tokens
 
 
-def fix_line(l):
+def fix_line(line):
     """
-    :param l: [] of str
+    :param line: [] of str
         Tokens of line
     :return: [] of str
         Tokens of line
     """
 
-    for i in range(len(l)):
-        if l[i].find(" ") > 0 and l[i][0].isdigit():  # there is some number jammed up with some words
-            tokens = l[i].split(" ")
-            n = tokens[0].strip()  # number
-            t = " ".join(tokens[1:]).strip()  # words
-            l[i] = n
-            l.insert(i + 1, t)
-    return l
+    for i, value in enumerate(line):
+        if value.find(" ") > 0 and value[0].isdigit():
+            tokens = value.split(" ")
+            number = tokens[0].strip()  # number
+            words = " ".join(tokens[1:]).strip()  # words
+            line[i] = number
+            line.insert(i + 1, words)
+    return line
 
 
-def fix_headers(h):
+def fix_headers(bad_headers):
     """
-    :param h: [] of str
+    :param bad_headers: [] of str
         Tokens of headers
     :return: [] of str
         Tokens of headers
     """
 
     headers = []
-    for x in h:
-        headers += x.split(" ")
+    for header in bad_headers:
+        headers += header.split(" ")
     return headers
 
 
@@ -116,16 +119,19 @@ def parse_file(path_file):
     with open(path_file, "r") as i:  # read all lines in file
         lines = i.readlines()
 
-    if len(lines) > 0:
+    if lines:
         lines = [get_tokens(l) for l in lines if len(l) > 2]  # parse each line
         headers = fix_headers(lines[0])
 
         lines = lines[1:]
-        lines = [l for l in lines if len(l) > 4 and (l[-2].find(":") > 0 or l[-1].find(":") > 0)]
+        lines = [
+            l for l in lines
+            if len(l) > 4 and (l[-2].find(":") > 0 or l[-1].find(":") > 0)
+            ]
 
         return headers, lines
-    else:
-        return None, None
+
+    return None, None
 
 
 def parse_and_save_file(path_file):
@@ -136,44 +142,50 @@ def parse_and_save_file(path_file):
         Parses raw file, then saves results
     """
 
-    h, d = parse_file(path_file)
-    if h is not None and d is not None:
+    headers, data = parse_file(path_file)
+    if headers is not None and data is not None:
         file_name_tokens = Document(path_file).name.split("-")
-        file_name = file_name_tokens[0] + "_" + file_name_tokens[1].split(".")[0] + ".csv"
+        file_name = file_name_tokens[0] + "_"
+        file_name += file_name_tokens[1].split(".")[0] + ".csv"
         out_file = os.path.join(os.path.dirname(path_file), file_name)
 
-        for i in range(len(d)):
-            if len(h) == len(d[i]) - 1:
-                d[i][2] += d[i][3]
-                del d[i][3]
+        for i, value in enumerate(data):
+            if len(headers) == len(value) - 1:
+                data[i][2] += data[i][3]
+                del data[i][3]
 
-            if len(h) == len(d[i]) and d[i][-1].find(":") > 0:  # it's a time
-                d[i][2] += d[i][3]
-                del d[i][3]
+            if len(headers) == len(value) and data[i][-1].find(":") > 0:
+                data[i][2] += data[i][3]
+                del data[i][3]
 
-            if len(d[i]) < len(h):
-                d[i].insert(4, VALUE_NOT_FOUND)
+            if len(data[i]) < len(headers):
+                data[i].insert(4, VALUE_NOT_FOUND)
 
-            while len(d[i]) > len(h) and len(d[i]) > 4:
-                del d[i][4]
+            while len(value) > len(headers) and len(value) > 4:
+                del data[i][4]
 
-            if len(h) != len(d[i]):
-                print(h, len(h))
-                print(d[i], len(d[i]))
+            if len(headers) != len(data[i]):
+                print(headers, len(headers))
+                print(data[i], len(data[i]))
 
-        df = pd.DataFrame(d)
-        df.to_csv(out_file, quotechar="\"", index=False, header=h)
+        data_frame = pd.DataFrame(data)
+        data_frame.to_csv(out_file, quotechar="\"", index=False,
+                          header=headers)
         print("Data saved to", out_file)
     else:
         print("Empty file", path_file)
 
 
 def main():
+    """
+    :return: void
+        Parses raw file, then saves results
+    """
+
     path_file = parse_args(create_args())
     if check_args(path_file):
-        for f in os.listdir(path_file):
-            if True:
-                parse_and_save_file(os.path.join(path_file, f))
+        for file in os.listdir(path_file):
+            parse_and_save_file(os.path.join(path_file, file))
     else:
         print("Error while parsing args.")
 

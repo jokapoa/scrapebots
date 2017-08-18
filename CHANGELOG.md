@@ -7,7 +7,8 @@ All notable changes to this project will be documented in this file.
 - all bots now in `bots` module
 
 ### Fixed
-- flake8/pylint in amazon bots
+- flake8/pylint-ed amazon module
+- flake8/pylint-ed conne marathon module
 
 ### Fixed
 - .gitignore
